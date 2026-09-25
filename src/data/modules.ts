@@ -34,7 +34,7 @@ export const MODULES: readonly SiteModule[] = [
     name: 'Navigation',
     icon: 'compass',
     blurb: 'Find your way without a cell tower.',
-    tools: ['Offline Map', 'Map Library', 'Star Map', 'Grid Reference'],
+    tools: ['Map', 'Map Library', 'Star Map', 'Grid Reference'],
   },
   {
     name: 'Reference',

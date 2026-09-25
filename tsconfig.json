@@ -1,5 +1,8 @@
 {
   "extends": "astro/tsconfigs/strict",
   "include": [".astro/types.d.ts", "**/*", "./worker-configuration.d.ts"],
-  "exclude": ["dist"]
+  // test/ runs under Node's built-in test runner and needs @types/node to
+  // type-check. Until that devDependency is added, it is linted and run but
+  // not type-checked. The code it tests (src/lib) is type-checked as normal.
+  "exclude": ["dist", "test"]
 }
