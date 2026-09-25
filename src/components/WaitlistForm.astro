@@ -1,12 +1,17 @@
 ---
 /**
  * Email capture. Posts to /api/subscribe as a plain HTML form so it works
- * without JavaScript. The endpoint arrives in the next PR; until then this
- * form renders but has nothing to submit to.
+ * without JavaScript; the endpoint redirects to /joined or /join-error.
  */
+import { HONEYPOT_FIELD } from '../lib/waitlist';
+import type { WaitlistSource } from '../lib/waitlist';
+
 interface Props {
-  /** Unique per page; used to tie the label to its input. */
-  id: string;
+  /**
+   * Unique per page. Ties the label to its input and is sent as `source` so
+   * we can tell which form a signup came from.
+   */
+  id: WaitlistSource;
   centered?: boolean;
   showNote?: boolean;
 }
@@ -14,6 +19,7 @@ interface Props {
 const { id, centered = false, showNote = false } = Astro.props;
 const inputId = `${id}-email`;
 const noteId = `${id}-note`;
+const honeypotId = `${id}-${HONEYPOT_FIELD}`;
 ---
 
 <form
@@ -21,6 +27,21 @@ const noteId = `${id}-note`;
   method="post"
   action="/api/subscribe"
 >
+  <input type="hidden" name="source" value={id} />
+  <!--
+    Honeypot: moved off-screen and hidden from assistive tech, so people never
+    see it. Bots that fill every field get a success page and are not stored.
+  -->
+  <div class="hp" aria-hidden="true">
+    <label for={honeypotId}>Leave this field empty</label>
+    <input
+      id={honeypotId}
+      name={HONEYPOT_FIELD}
+      type="text"
+      tabindex="-1"
+      autocomplete="off"
+    />
+  </div>
   <label for={inputId}>Get notified at launch</label>
   <div class="row">
     <input
@@ -47,6 +68,14 @@ const noteId = `${id}-note`;
     display: grid;
     gap: 0.75rem;
     max-width: 34rem;
+  }
+
+  .hp {
+    position: absolute;
+    left: -10000px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
   }
 
   .centered {

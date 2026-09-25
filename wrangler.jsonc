@@ -11,4 +11,15 @@
   "observability": {
     "enabled": true,
   },
+  // Waitlist storage. Locally, `wrangler dev` uses a SQLite file under
+  // .wrangler/. For production, create the database once with
+  // `npx wrangler d1 create coldboot-waitlist` and add the database_id it
+  // prints here (see README, "First deploy").
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "coldboot-waitlist",
+      "migrations_dir": "migrations",
+    },
+  ],
 }

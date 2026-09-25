@@ -1,0 +1,12 @@
+---
+import WaitlistForm from '../components/WaitlistForm.astro';
+import Notice from '../layouts/Notice.astro';
+---
+
+<Notice title="That didn't go through" heading="That didn't go through.">
+  <p>
+    Check the email address and try again. If it keeps happening, it's on our
+    end, and trying again a little later should work.
+  </p>
+  <WaitlistForm id="retry" centered />
+</Notice>

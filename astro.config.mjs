@@ -9,6 +9,10 @@ export default defineConfig({
   // per request (the waitlist endpoint) opts out with `export const prerender
   // = false` and runs on the Worker.
   output: 'static',
+  // Emit /joined as joined.html rather than joined/index.html. Cloudflare
+  // then serves /joined directly instead of redirecting to /joined/, which
+  // saves a hop after the waitlist endpoint's own redirect.
+  build: { format: 'file' },
   adapter: cloudflare({
     // Optimise images once at build time rather than through the Cloudflare
     // Images binding on every request. The site has a handful of static

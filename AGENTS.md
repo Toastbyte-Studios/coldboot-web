@@ -35,7 +35,10 @@ npm run typecheck     # wrangler types + astro check
 npm run lint          # ESLint
 npm run format        # Prettier write
 npm run format:check  # Prettier check (CI)
-npm run cleanup       # format + lint + typecheck + build — run before a PR
+npm test              # Unit tests (node --test, native TypeScript)
+npm run db:migrate:local   # Apply D1 migrations to the local database
+npm run db:migrate:remote  # Apply D1 migrations to production
+npm run cleanup       # format + lint + typecheck + test + build — run before a PR
 npm run deploy        # Build and wrangler deploy
 ```
 
@@ -65,11 +68,15 @@ src/
   assets/brand/   # Logo SVGs, copied from ColdBoot (do not edit here)
   components/     # Page building blocks (Mark, Icon, WaitlistForm, ...)
   data/           # Copy and content as typed data (modules.ts, site.ts)
-  layouts/        # Page shells (Base.astro: <head>, meta, fonts, global CSS)
+  layouts/        # Base.astro (<head>, meta, fonts, CSS); Notice.astro (result pages)
+  lib/            # Pure logic, unit tested (waitlist.ts: parsing, validation)
   pages/          # Routes; files here become URLs
+    api/          # Worker endpoints (subscribe.ts)
   styles/
     tokens.css    # ColdBoot brand tokens, copied from ColdBoot (do not edit here)
     global.css    # Site-level tokens, resets and shared utilities
+migrations/       # D1 schema, applied in order by wrangler
+test/             # node:test unit tests for src/lib
 public/           # Served as-is (favicon)
 ```
 
@@ -83,6 +90,10 @@ public/           # Served as-is (favicon)
   needs per-request work.
 - A route that must run on the Worker (the waitlist endpoint) opts out with
   `export const prerender = false;` at the top of the file.
+- Worker bindings (like `DB`) come from `import { env } from 'cloudflare:workers'`.
+  `Astro.locals.runtime.env` was removed in Astro 6 and throws.
+- `build.format` is `'file'`, so `/joined` builds to `joined.html` and is
+  served without a trailing-slash redirect.
 - Ship no client JavaScript by default. Prefer HTML and CSS; reach for a
   `<script>` only when there is no non-JS way, and don't add a UI framework
   integration (React etc.) for a single interactive element.
@@ -113,6 +124,25 @@ public/           # Served as-is (favicon)
   when the app's tool list changes, update it here.
 - Don't state a feature the app doesn't have. Check claims against the ColdBoot
   repo before writing them.
+
+### Waitlist
+
+- `/api/subscribe` answers every outcome with a 303 redirect to `/joined` or
+  `/join-error`, so the form works without JavaScript.
+- A duplicate signup must look exactly like a new one, so the form can't be
+  used to check whether someone is on the list.
+- Store only the address, time and source form. No IP addresses, user
+  agents or other tracking data. Never log an email address.
+- Keep validation in `src/lib/waitlist.ts` with tests in `test/`; the endpoint
+  should stay a thin wrapper around it.
+- Schema changes go in a new numbered file in `migrations/`; never edit one
+  that has been applied.
+
+### Tests
+
+- Tests use Node's built-in runner and native TypeScript stripping, so they
+  need no extra dependencies. `test/` is excluded from `astro check` until
+  `@types/node` is added as a devDependency.
 
 ### Code
 

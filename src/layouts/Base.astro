@@ -5,9 +5,11 @@ import '../styles/global.css';
 interface Props {
   title: string;
   description: string;
+  /** Keep utility pages (form results) out of search results. */
+  noindex?: boolean;
 }
 
-const { title, description } = Astro.props;
+const { title, description, noindex = false } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 ---
 
@@ -19,6 +21,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex" />}
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <Font cssVariable="--font-display" preload={[{ weight: '700' }]} />
     <Font cssVariable="--font-body" preload={[{ weight: '400' }]} />

@@ -1,0 +1,61 @@
+---
+/**
+ * A small centered page for form results (/joined, /join-error): the mark,
+ * a heading, a message and whatever the page adds in its slot.
+ */
+import Mark from '../components/Mark.astro';
+import Base from './Base.astro';
+
+interface Props {
+  title: string;
+  heading: string;
+}
+
+const { title, heading } = Astro.props;
+---
+
+<Base title={`${title} — ColdBoot`} description="ColdBoot waitlist." noindex>
+  <main class="notice wrap">
+    <a href="/" aria-label="ColdBoot home">
+      <Mark size={72} />
+    </a>
+    <h1>{heading}</h1>
+    <slot />
+  </main>
+</Base>
+
+<style>
+  .notice {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    padding-block: 4rem;
+    text-align: center;
+  }
+
+  h1 {
+    margin: 0.5rem 0 0;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(2.75rem, 7vw, 4.5rem);
+    line-height: 0.95;
+    text-transform: uppercase;
+    text-wrap: balance;
+  }
+
+  .notice :global(p) {
+    margin: 0;
+    max-width: 32rem;
+    font-size: 1.125rem;
+    line-height: 1.6;
+    color: var(--cb-muted);
+  }
+
+  .notice :global(.waitlist) {
+    width: 100%;
+    margin-top: 1rem;
+  }
+</style>
