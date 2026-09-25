@@ -1,9 +1,0 @@
-dist/
-.astro/
-.wrangler/
-node_modules/
-package-lock.json
-worker-configuration.d.ts
-# Brand assets are generated upstream in ColdBoot; don't reformat them here.
-src/assets/brand/
-public/favicon.svg
