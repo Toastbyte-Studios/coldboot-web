@@ -2,6 +2,8 @@
 import Mark from '../components/Mark.astro';
 import ModuleCard from '../components/ModuleCard.astro';
 import PhoneMock from '../components/PhoneMock.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import SiteHeader from '../components/SiteHeader.astro';
 import WaitlistForm from '../components/WaitlistForm.astro';
 import { MODULES } from '../data/modules';
 import { READOUTS, SAMPLE_SUN_TIMES, SITE } from '../data/site';
@@ -21,17 +23,7 @@ const CONTOUR_STEPS = [
 ---
 
 <Base title={SITE.title} description={SITE.description}>
-  <header class="site-header wrap">
-    <a class="brand" href="/" aria-label="ColdBoot home">
-      <Mark size={40} />
-      <span class="wordmark" aria-hidden="true">
-        COLDBOOT
-      </span>
-    </a>
-    <a class="pill" href="#waitlist">
-      Join the waitlist
-    </a>
-  </header>
+  <SiteHeader />
 
   <main>
     <section class="hero" aria-labelledby="hero-heading">
@@ -68,7 +60,7 @@ const CONTOUR_STEPS = [
             and every tool works without a connection.
           </p>
           <div id="waitlist" class="hero-form">
-            <WaitlistForm id="hero" showNote />
+            <WaitlistForm id="hero" />
           </div>
         </div>
         <div class="hero-phone">
@@ -144,64 +136,10 @@ const CONTOUR_STEPS = [
     </section>
   </main>
 
-  <footer class="site-footer wrap">
-    <p>
-      ColdBoot is made by <a href={SITE.studio.url}>{SITE.studio.name}</a>
-    </p>
-    <nav aria-label="Footer">
-      <a href="/privacy">Privacy</a>
-      <span>
-        © {new Date().getFullYear()} {SITE.studio.name}
-      </span>
-    </nav>
-  </footer>
+  <SiteFooter />
 </Base>
 
 <style>
-  /* Header */
-  .site-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 1rem;
-    padding-block: 1.75rem;
-    position: relative;
-    z-index: 2;
-  }
-
-  .brand {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.875rem;
-    color: var(--cb-text);
-    text-decoration: none;
-  }
-
-  .wordmark {
-    font-family: var(--font-display);
-    font-weight: 600;
-    font-size: 1.625rem;
-    letter-spacing: 0.04em;
-  }
-
-  .pill {
-    display: inline-flex;
-    align-items: center;
-    min-height: 44px;
-    padding: 0 1.375rem;
-    border: 1px solid var(--cb-border);
-    border-radius: 999px;
-    color: var(--cb-text);
-    font-weight: 600;
-    font-size: 0.9375rem;
-    text-decoration: none;
-    white-space: nowrap;
-  }
-
-  .pill:hover {
-    border-color: var(--cb-brand);
-  }
-
   /* Shared type */
   .eyebrow {
     display: flex;
@@ -418,29 +356,6 @@ const CONTOUR_STEPS = [
     font-size: clamp(3rem, 6vw, 5.25rem);
   }
 
-  /* Footer */
-  .site-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 1rem 1.75rem;
-    padding-block: 2rem 2.5rem;
-    border-top: 1px solid var(--cb-separator);
-    font-size: 0.9375rem;
-    color: var(--cb-muted);
-  }
-
-  .site-footer p {
-    margin: 0;
-  }
-
-  .site-footer nav {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1.75rem;
-  }
-
   /* Tablet and below */
   @media (max-width: 1080px) {
     .hero-inner {
@@ -465,29 +380,8 @@ const CONTOUR_STEPS = [
     }
   }
 
-  /* Narrowest phones: the mark carries the brand on its own so the
-     waitlist link keeps to one line. The link's aria-label still names it. */
-  @media (max-width: 380px) {
-    .wordmark {
-      display: none;
-    }
-  }
-
   /* Phone */
   @media (max-width: 640px) {
-    .site-header {
-      padding-block: 1rem;
-    }
-
-    .wordmark {
-      font-size: 1.375rem;
-    }
-
-    .pill {
-      padding: 0 1rem;
-      font-size: 0.875rem;
-    }
-
     .hero {
       padding-block: 2.25rem 3.5rem;
     }
@@ -546,11 +440,6 @@ const CONTOUR_STEPS = [
 
     .closing .waitlist {
       width: 100%;
-    }
-
-    .site-footer {
-      flex-direction: column;
-      align-items: flex-start;
     }
   }
 </style>
