@@ -1,6 +1,6 @@
 // @ts-check
 import cloudflare from '@astrojs/cloudflare';
-import { defineConfig } from 'astro/config';
+import { defineConfig, fontProviders } from 'astro/config';
 
 // https://astro.build/config
 export default defineConfig({
@@ -19,4 +19,33 @@ export default defineConfig({
   // otherwise. Nothing here needs server-side sessions, so don't provision a
   // KV namespace that nothing reads.
   session: false,
+  // Fonts are downloaded from Google at build time and served from our own
+  // domain, so visitors' browsers never contact Google. Astro also generates
+  // metric-matched fallbacks to limit layout shift while they load.
+  fonts: [
+    {
+      provider: fontProviders.google(),
+      name: 'Barlow Condensed',
+      cssVariable: '--font-display',
+      weights: [600, 700],
+      subsets: ['latin'],
+      fallbacks: ['Arial Narrow', 'sans-serif'],
+    },
+    {
+      provider: fontProviders.google(),
+      name: 'Barlow',
+      cssVariable: '--font-body',
+      weights: [400, 500, 600],
+      subsets: ['latin'],
+      fallbacks: ['system-ui', 'sans-serif'],
+    },
+    {
+      provider: fontProviders.google(),
+      name: 'IBM Plex Mono',
+      cssVariable: '--font-mono',
+      weights: [400, 500],
+      subsets: ['latin'],
+      fallbacks: ['ui-monospace', 'monospace'],
+    },
+  ],
 });
