@@ -63,11 +63,13 @@ matches `main`.
 ```text
 src/
   assets/brand/   # Logo SVGs, copied from ColdBoot (do not edit here)
-  layouts/        # Page shells (Base.astro: <head>, meta, global CSS)
+  components/     # Page building blocks (Mark, Icon, WaitlistForm, ...)
+  data/           # Copy and content as typed data (modules.ts, site.ts)
+  layouts/        # Page shells (Base.astro: <head>, meta, fonts, global CSS)
   pages/          # Routes; files here become URLs
   styles/
     tokens.css    # ColdBoot brand tokens, copied from ColdBoot (do not edit here)
-    global.css    # Resets and site-wide base styles
+    global.css    # Site-level tokens, resets and shared utilities
 public/           # Served as-is (favicon)
 ```
 
@@ -92,9 +94,25 @@ public/           # Served as-is (favicon)
 - `tokens.css` and everything in `src/assets/brand/` are copies from ColdBoot's
   `assets/coldboot-assets/`. If the brand changes, re-copy from there; don't
   edit values in this repo.
+- A few extra app colors the page needs (`--cb-separator`,
+  `--cb-accent-container`, ...) live in `global.css`, each commented with the
+  `DARK_COLORS` role in ColdBoot's `src/theme/colors.ts` it comes from.
+- Fonts are Barlow Condensed (display), Barlow (body) and IBM Plex Mono
+  (labels), configured under `fonts` in `astro.config.mjs` and emitted by the
+  `<Font>` components in `Base.astro`. Astro downloads them at build time and
+  serves them from our own domain, so builds need network access but
+  visitors' browsers never contact a font CDN. Keep it that way.
 - The page uses the dark scheme (`data-theme="dark"` on `<html>`).
 - Amber (`--cb-accent`) is the single signal color, as in the app: reserve it
   for the primary action.
+
+### Content
+
+- Marketing copy that is likely to change lives in `src/data/`, not in markup.
+  `modules.ts` mirrors the app's `MODULES` and `*_TOOLS` in `constants.ts`;
+  when the app's tool list changes, update it here.
+- Don't state a feature the app doesn't have. Check claims against the ColdBoot
+  repo before writing them.
 
 ### Code
 

@@ -1,39 +1,556 @@
 ---
-// Placeholder until the prelaunch design is ported. Deliberately minimal: it
-// exists so a deploy of the scaffold shows ColdBoot, not the Astro starter.
-import Lockup from '../assets/brand/lockup-dark.svg';
+import Mark from '../components/Mark.astro';
+import ModuleCard from '../components/ModuleCard.astro';
+import PhoneMock from '../components/PhoneMock.astro';
+import WaitlistForm from '../components/WaitlistForm.astro';
+import { MODULES } from '../data/modules';
+import { READOUTS, SAMPLE_SUN_TIMES, SITE } from '../data/site';
 import Base from '../layouts/Base.astro';
+
+// The same closed contour, stepped down in scale and rotated, reads as a
+// topographic map behind the hero.
+const CONTOUR =
+  'M450 140 C630 150 770 280 760 455 C750 630 610 770 435 760 C260 750 130 620 140 445 C150 270 280 130 450 140Z';
+const CONTOUR_STEPS = [
+  { scale: 1, rotate: 0 },
+  { scale: 0.82, rotate: 8 },
+  { scale: 0.64, rotate: 16 },
+  { scale: 0.46, rotate: 24 },
+  { scale: 0.28, rotate: 32 },
+];
 ---
 
-<Base
-  title="ColdBoot — offline survival tools for your phone"
-  description="ColdBoot is an offline-first field kit for iOS and Android. Coming soon."
->
+<Base title={SITE.title} description={SITE.description}>
+  <header class="site-header wrap">
+    <a class="brand" href="/" aria-label="ColdBoot home">
+      <Mark size={40} />
+      <span class="wordmark" aria-hidden="true">
+        COLDBOOT
+      </span>
+    </a>
+    <a class="pill" href="#waitlist">
+      Join the waitlist
+    </a>
+  </header>
+
   <main>
-    <Lockup width={352} height={88} role="img" aria-label="ColdBoot" />
-    <p>Coming soon to iOS and Android.</p>
+    <section class="hero" aria-labelledby="hero-heading">
+      <svg
+        class="contours"
+        viewBox="0 0 900 900"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <g fill="none" stroke="currentColor" stroke-width="1.4">
+          {CONTOUR_STEPS.map(({ scale, rotate }) => (
+            <path
+              d={CONTOUR}
+              transform={`translate(450 450) rotate(${rotate}) scale(${scale}) translate(-450 -450)`}
+            />
+          ))}
+        </g>
+      </svg>
+
+      <div class="hero-inner wrap">
+        <div class="hero-copy">
+          <p class="eyebrow">
+            <span class="dot" aria-hidden="true"></span>
+            Offline field kit · {SITE.platforms} · {SITE.launchLabel}
+          </p>
+          <h1 id="hero-heading">
+            Built for
+            <br />
+            <span class="soft">zero bars.</span>
+          </h1>
+          <p class="lede">
+            ColdBoot turns your phone into a field kit. Maps, compass, Morse,
+            sun times, pantry tracking and a survival library, all in one app,
+            and every tool works without a connection.
+          </p>
+          <div id="waitlist" class="hero-form">
+            <WaitlistForm id="hero" showNote />
+          </div>
+        </div>
+        <div class="hero-phone">
+          <PhoneMock />
+        </div>
+      </div>
+    </section>
+
+    <section class="wrap readouts" aria-label="At a glance">
+      <dl>
+        {READOUTS.map((r) => (
+          <div>
+            <dt>{r.label}</dt>
+            <dd>{r.value}</dd>
+          </div>
+        ))}
+      </dl>
+    </section>
+
+    <section class="wrap modules" aria-labelledby="modules-heading">
+      <p class="eyebrow">Six modules · one kit</p>
+      <h2 id="modules-heading">
+        Everything you'd pack,
+        <br />
+        none of the weight.
+      </h2>
+      <p class="section-lede">
+        Grouped the way you'd reach for them in the field. Every tool below
+        works in airplane mode.
+      </p>
+      <div class="module-grid">
+        {MODULES.map((m) => (
+          <ModuleCard module={m} />
+        ))}
+      </div>
+    </section>
+
+    <section class="wrap solar" aria-labelledby="solar-heading">
+      <figure class="sun-card">
+        <figcaption class="sun-card-head">
+          <span>Today · your location</span>
+          <span class="accent">Sunset in 2h 14m</span>
+        </figcaption>
+        <dl>
+          {SAMPLE_SUN_TIMES.map((t) => (
+            <div class:list={{ highlight: t.highlight }}>
+              <dt>{t.label}</dt>
+              <dd>{t.time}</dd>
+            </div>
+          ))}
+        </dl>
+      </figure>
+      <div class="solar-copy">
+        <p class="eyebrow">Solar cycle</p>
+        <h2 id="solar-heading">The one clock that never needs charging.</h2>
+        <p class="section-lede">
+          ColdBoot keeps a live countdown to the next sunrise or sunset in your
+          notifications, updated as you move. Dawn, dusk, solar noon and golden
+          hour are calculated on the phone itself, so they're there whether or
+          not you have service.
+        </p>
+      </div>
+    </section>
+
+    <section class="wrap closing" aria-labelledby="closing-heading">
+      <Mark size={72} />
+      <h2 id="closing-heading">
+        When the network goes down,
+        <br />
+        <span class="soft">ColdBoot boots up.</span>
+      </h2>
+      <WaitlistForm id="closing" centered />
+    </section>
   </main>
+
+  <footer class="site-footer wrap">
+    <p>
+      ColdBoot is made by <a href={SITE.studio.url}>{SITE.studio.name}</a>
+    </p>
+    <nav aria-label="Footer">
+      <a href="/privacy">Privacy</a>
+      <span>
+        © {new Date().getFullYear()} {SITE.studio.name}
+      </span>
+    </nav>
+  </footer>
 </Base>
 
 <style>
-  main {
-    min-height: 100vh;
+  /* Header */
+  .site-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding-block: 1.75rem;
+    position: relative;
+    z-index: 2;
+  }
+
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.875rem;
+    color: var(--cb-text);
+    text-decoration: none;
+  }
+
+  .wordmark {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.625rem;
+    letter-spacing: 0.04em;
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 1.375rem;
+    border: 1px solid var(--cb-border);
+    border-radius: 999px;
+    color: var(--cb-text);
+    font-weight: 600;
+    font-size: 0.9375rem;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .pill:hover {
+    border-color: var(--cb-brand);
+  }
+
+  /* Shared type */
+  .eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--cb-brand);
+  }
+
+  .dot {
+    width: 8px;
+    height: 8px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: var(--cb-accent);
+  }
+
+  h1,
+  h2 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 700;
+    line-height: 0.92;
+    text-transform: uppercase;
+    text-wrap: balance;
+  }
+
+  .soft {
+    color: var(--cb-brand);
+  }
+
+  .section-lede {
+    margin: 1.25rem 0 0;
+    max-width: 38rem;
+    font-size: 1.125rem;
+    line-height: 1.6;
+    color: var(--cb-muted);
+  }
+
+  /* Hero */
+  .hero {
+    position: relative;
+    padding-block: 4rem 6.5rem;
+    /* The contours bleed off the right edge by design; clip them there
+       without clipping their top, which rises behind the header. */
+    overflow-x: clip;
+  }
+
+  .contours {
+    position: absolute;
+    top: -180px;
+    right: -220px;
+    width: 980px;
+    height: 980px;
+    color: var(--cb-contour);
+    pointer-events: none;
+  }
+
+  .hero-inner {
+    position: relative;
     display: grid;
-    place-content: center;
-    justify-items: center;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 4.5rem;
+  }
+
+  h1 {
+    margin-top: 1.75rem;
+    font-size: clamp(4.5rem, 9vw, 7rem);
+    line-height: 0.9;
+  }
+
+  .lede {
+    margin: 2rem 0 0;
+    max-width: 36rem;
+    font-size: 1.25rem;
+    line-height: 1.55;
+  }
+
+  .hero-form {
+    margin-top: 2.75rem;
+    scroll-margin-top: 2rem;
+  }
+
+  /* Readouts */
+  .readouts dl {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 1.5rem;
-    padding: 2rem;
+    margin: 0;
+    padding-block: 1.875rem;
+    border-block: 1px solid var(--cb-separator);
+  }
+
+  .readouts dt {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--cb-muted);
+  }
+
+  .readouts dd {
+    margin: 0.375rem 0 0;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 2rem;
+    line-height: 1.1;
+  }
+
+  /* Modules */
+  .modules {
+    padding-top: 8rem;
+  }
+
+  .modules h2 {
+    margin-top: 1rem;
+    font-size: clamp(2.875rem, 5vw, 4.25rem);
+    line-height: 0.95;
+  }
+
+  .module-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.25rem;
+    margin-top: 3.5rem;
+  }
+
+  /* Solar */
+  .solar {
+    display: grid;
+    grid-template-columns: minmax(0, 500px) minmax(0, 1fr);
+    align-items: center;
+    gap: 5.5rem;
+    padding-top: 8.5rem;
+  }
+
+  .solar h2 {
+    margin-top: 1rem;
+    font-size: clamp(2.75rem, 4.4vw, 3.75rem);
+    line-height: 0.95;
+  }
+
+  .sun-card {
+    margin: 0;
+    padding: 1.75rem;
+    border: 1px solid var(--cb-border);
+    border-radius: 24px;
+    background: var(--cb-surface);
+  }
+
+  .sun-card-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--cb-muted);
+  }
+
+  .accent {
+    color: var(--cb-accent);
+  }
+
+  .sun-card dl {
+    margin: 1.25rem 0 0;
+  }
+
+  .sun-card dl > div {
+    display: flex;
+    justify-content: space-between;
+    padding-block: 0.875rem;
+    border-bottom: 1px solid var(--cb-separator);
+    font-size: 1.0625rem;
+  }
+
+  .sun-card dl > div:last-child {
+    padding-bottom: 0;
+    border-bottom: 0;
+  }
+
+  .sun-card dt {
+    color: var(--cb-muted);
+  }
+
+  .sun-card dd {
+    margin: 0;
+    font-family: var(--font-mono);
+  }
+
+  .sun-card .highlight dt,
+  .sun-card .highlight dd {
+    color: var(--cb-accent);
+  }
+
+  /* Closing */
+  .closing {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2.75rem;
+    padding-block: 9.5rem 7.5rem;
     text-align: center;
   }
 
-  main :global(svg) {
-    max-width: 100%;
-    height: auto;
+  .closing h2 {
+    margin-top: -0.75rem;
+    font-size: clamp(3rem, 6vw, 5.25rem);
   }
 
-  p {
-    margin: 0;
+  /* Footer */
+  .site-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem 1.75rem;
+    padding-block: 2rem 2.5rem;
+    border-top: 1px solid var(--cb-separator);
+    font-size: 0.9375rem;
     color: var(--cb-muted);
-    font-size: 1.125rem;
+  }
+
+  .site-footer p {
+    margin: 0;
+  }
+
+  .site-footer nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.75rem;
+  }
+
+  /* Tablet and below */
+  @media (max-width: 1080px) {
+    .hero-inner {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .hero-phone {
+      justify-self: center;
+    }
+
+    .module-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .solar {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 2rem;
+    }
+
+    .sun-card {
+      order: 2;
+    }
+  }
+
+  /* Narrowest phones: the mark carries the brand on its own so the
+     waitlist link keeps to one line. The link's aria-label still names it. */
+  @media (max-width: 380px) {
+    .wordmark {
+      display: none;
+    }
+  }
+
+  /* Phone */
+  @media (max-width: 640px) {
+    .site-header {
+      padding-block: 1rem;
+    }
+
+    .wordmark {
+      font-size: 1.375rem;
+    }
+
+    .pill {
+      padding: 0 1rem;
+      font-size: 0.875rem;
+    }
+
+    .hero {
+      padding-block: 2.25rem 3.5rem;
+    }
+
+    .contours {
+      top: -60px;
+      right: -300px;
+      width: 620px;
+      height: 620px;
+    }
+
+    .eyebrow {
+      align-items: flex-start;
+      font-size: 0.6875rem;
+      line-height: 1.6;
+    }
+
+    .dot {
+      margin-top: 0.3rem;
+    }
+
+    .lede {
+      font-size: 1.0625rem;
+    }
+
+    .hero-phone {
+      width: 300px;
+    }
+
+    .readouts dl {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1.5rem 1rem;
+    }
+
+    .readouts dd {
+      font-size: 1.5rem;
+    }
+
+    .modules {
+      padding-top: 5rem;
+    }
+
+    .module-grid {
+      grid-template-columns: minmax(0, 1fr);
+      margin-top: 2rem;
+    }
+
+    .solar {
+      padding-top: 5.5rem;
+    }
+
+    .closing {
+      padding-block: 6rem 4.5rem;
+      gap: 2rem;
+    }
+
+    .closing .waitlist {
+      width: 100%;
+    }
+
+    .site-footer {
+      flex-direction: column;
+      align-items: flex-start;
+    }
   }
 </style>
