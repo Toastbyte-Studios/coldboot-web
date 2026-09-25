@@ -66,7 +66,7 @@ matches `main`.
 ```text
 src/
   assets/brand/   # Logo SVGs, copied from ColdBoot (do not edit here)
-  components/     # Page building blocks (Mark, Icon, WaitlistForm, ...)
+  components/     # Building blocks (SiteHeader, SiteFooter, WaitlistForm, Mark, ...)
   data/           # Copy and content as typed data (modules.ts, site.ts)
   layouts/        # Base.astro (<head>, meta, fonts, CSS); Notice.astro (result pages)
   lib/            # Pure logic, unit tested (waitlist.ts: parsing, validation)
@@ -137,6 +137,18 @@ public/           # Served as-is (favicon)
   should stay a thin wrapper around it.
 - Schema changes go in a new numbered file in `migrations/`; never edit one
   that has been applied.
+
+### Privacy
+
+- `src/pages/privacy.astro` must stay true of the code. Any PR that changes
+  what the waitlist stores, adds cookies, analytics or a third-party script,
+  or picks an email provider must update the policy and `PRIVACY.lastUpdated`
+  in `src/data/site.ts` in the same PR.
+- What joining the waitlist signs someone up for lives in `WAITLIST_PROMISE`
+  in `src/data/site.ts`. The form note, `/joined` and the policy all read it;
+  don't restate the promise in markup.
+- Every waitlist form shows the note and a link to the policy, next to its
+  submit button.
 
 ### Tests
 
