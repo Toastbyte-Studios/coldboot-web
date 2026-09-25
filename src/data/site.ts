@@ -12,7 +12,31 @@ export const SITE = {
   // TODO(launch): replace with the real launch window.
   launchLabel: 'Launching [SEASON 2026]',
   platforms: 'iOS + Android',
-  studio: { name: 'Toastbyte Studios', url: 'https://toastbyte.studio/' },
+  studio: {
+    name: 'Toastbyte Studios',
+    legalName: 'Toastbyte Studios, LLC',
+    url: 'https://toastbyte.studio/',
+  },
+  contactEmail: 'support@toastbyte.studio',
+} as const;
+
+/**
+ * What joining the waitlist signs someone up for. The form note, the /joined
+ * page and the privacy policy all use this, so the promise made at signup
+ * can't drift from the policy. Change it here, and update PRIVACY.lastUpdated.
+ */
+export const WAITLIST_PROMISE = {
+  short:
+    "We'll email you when ColdBoot launches, and now and then with product news.",
+  full:
+    'We use your email address to tell you when ColdBoot is available, and ' +
+    'after that to send occasional news about ColdBoot and other Toastbyte ' +
+    'Studios products.',
+} as const;
+
+export const PRIVACY = {
+  // Update whenever the policy's substance changes.
+  lastUpdated: '2026-09-25',
 } as const;
 
 /** The readout strip under the hero. */

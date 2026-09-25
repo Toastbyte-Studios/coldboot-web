@@ -3,6 +3,7 @@
  * Email capture. Posts to /api/subscribe as a plain HTML form so it works
  * without JavaScript; the endpoint redirects to /joined or /join-error.
  */
+import { WAITLIST_PROMISE } from '../data/site';
 import { HONEYPOT_FIELD } from '../lib/waitlist';
 import type { WaitlistSource } from '../lib/waitlist';
 
@@ -13,10 +14,9 @@ interface Props {
    */
   id: WaitlistSource;
   centered?: boolean;
-  showNote?: boolean;
 }
 
-const { id, centered = false, showNote = false } = Astro.props;
+const { id, centered = false } = Astro.props;
 const inputId = `${id}-email`;
 const noteId = `${id}-note`;
 const honeypotId = `${id}-${HONEYPOT_FIELD}`;
@@ -52,15 +52,18 @@ const honeypotId = `${id}-${HONEYPOT_FIELD}`;
       autocomplete="email"
       inputmode="email"
       placeholder="you@example.com"
-      aria-describedby={showNote ? noteId : undefined}
+      aria-describedby={noteId}
     />
     <button type="submit">Join the waitlist</button>
   </div>
-  {showNote && (
-    <p class="note" id={noteId}>
-      We'll email you when ColdBoot is ready to download. Unsubscribe anytime.
-    </p>
-  )}
+  <!--
+    Shown on every form, not just the first: this is what people agree to
+    when they sign up, so it has to be next to the button they press.
+  -->
+  <p class="note" id={noteId}>
+    {WAITLIST_PROMISE.short} Unsubscribe anytime.{' '}
+    <a href="/privacy">Privacy policy</a>
+  </p>
 </form>
 
 <style>
@@ -139,6 +142,7 @@ const honeypotId = `${id}-${HONEYPOT_FIELD}`;
   .note {
     margin: 0.125rem 0 0;
     font-size: 0.875rem;
+    line-height: 1.5;
     color: var(--cb-muted);
   }
 

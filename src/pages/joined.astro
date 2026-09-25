@@ -1,10 +1,11 @@
 ---
+import { WAITLIST_PROMISE } from '../data/site';
 import Notice from '../layouts/Notice.astro';
 ---
 
 <Notice title="You're on the list" heading="You're on the list.">
-  <p>We'll email you the day ColdBoot is ready to download. That's it.</p>
+  <p>{WAITLIST_PROMISE.short} Every email has an unsubscribe link.</p>
   <p>
-    <a href="/">Back to coldboot.app</a>
+    <a href="/">Back to coldboot.app</a> · <a href="/privacy">Privacy policy</a>
   </p>
 </Notice>
