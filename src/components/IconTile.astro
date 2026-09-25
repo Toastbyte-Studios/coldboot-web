@@ -1,0 +1,30 @@
+---
+import Icon from './Icon.astro';
+import type { IconName } from '../data/modules';
+
+interface Props {
+  name: IconName;
+  /** Tile edge length in px. The icon is drawn at half of it. */
+  size?: number;
+}
+
+const { name, size = 48 } = Astro.props;
+---
+
+<span class="tile" style={`--tile-size: ${size}px`}>
+  <Icon name={name} size={Math.round(size / 2)} />
+</span>
+
+<style>
+  .tile {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: var(--tile-size);
+    height: var(--tile-size);
+    border-radius: calc(var(--tile-size) * 0.25);
+    background: var(--cb-secondary-container);
+    color: var(--cb-ice);
+  }
+</style>

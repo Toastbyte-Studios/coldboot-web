@@ -1,0 +1,115 @@
+---
+/**
+ * An illustration of the ColdBoot home screen: the solar countdown card and
+ * the six module tiles. It is a picture, not UI, so it is exposed to
+ * assistive tech as a single image with a description.
+ */
+import { MODULES } from '../data/modules';
+import IconTile from './IconTile.astro';
+import Mark from './Mark.astro';
+---
+
+<div
+  class="phone"
+  role="img"
+  aria-label="The ColdBoot home screen: a sunset countdown above tiles for the six modules."
+>
+  <div class="screen" aria-hidden="true">
+    <div class="app-bar">
+      <Mark size={30} />
+      <span>ColdBoot</span>
+    </div>
+    <div class="solar">
+      <span class="solar-label">Sunset</span>
+      <span class="solar-time">in 2h 14m</span>
+      <span class="solar-detail">6:52 PM · golden hour from 6:18</span>
+    </div>
+    <ul class="grid">
+      {MODULES.map((m) => (
+        <li>
+          <IconTile name={m.icon} size={36} />
+          <span>{m.name}</span>
+        </li>
+      ))}
+    </ul>
+  </div>
+</div>
+
+<style>
+  .phone {
+    width: 340px;
+    max-width: 100%;
+    aspect-ratio: 340 / 690;
+    border: 10px solid var(--cb-bezel);
+    border-radius: 52px;
+    background: var(--cb-bg);
+    box-shadow: 0 40px 80px rgb(0 0 0 / 45%);
+  }
+
+  .screen {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 30px 20px;
+  }
+
+  .app-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 24px;
+  }
+
+  .solar {
+    display: grid;
+    padding: 16px 18px;
+    border-radius: 20px;
+    background: var(--cb-accent-container);
+  }
+
+  .solar-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--cb-accent);
+  }
+
+  .solar-time {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 36px;
+    line-height: 1.1;
+    color: var(--cb-accent);
+  }
+
+  .solar-detail {
+    margin-top: 4px;
+    font-size: 13px;
+  }
+
+  .grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .grid li {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 14px;
+    border: 1px solid var(--cb-border);
+    border-radius: 18px;
+    background: var(--cb-surface);
+    font-weight: 600;
+    font-size: 15px;
+  }
+</style>

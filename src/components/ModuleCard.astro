@@ -1,0 +1,56 @@
+---
+import IconTile from './IconTile.astro';
+import type { SiteModule } from '../data/modules';
+
+interface Props {
+  module: SiteModule;
+}
+
+const { module } = Astro.props;
+---
+
+<article class="card">
+  <IconTile name={module.icon} size={48} />
+  <h3>{module.name}</h3>
+  <p class="blurb">{module.blurb}</p>
+  <p class="tools">
+    <span class="visually-hidden">Tools: </span>
+    {module.tools.join(' · ')}
+  </p>
+</article>
+
+<style>
+  .card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+    padding: 1.75rem;
+    border: 1px solid var(--cb-border);
+    border-radius: 20px;
+    background: var(--cb-surface);
+  }
+
+  h3 {
+    margin: 0.375rem 0 0;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.875rem;
+    letter-spacing: 0.02em;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .blurb {
+    margin: 0;
+    font-size: 1.0625rem;
+    line-height: 1.5;
+  }
+
+  .tools {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    line-height: 1.7;
+    color: var(--cb-brand);
+  }
+</style>
