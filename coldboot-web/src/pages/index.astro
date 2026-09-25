@@ -1,0 +1,39 @@
+---
+// Placeholder until the prelaunch design is ported. Deliberately minimal: it
+// exists so a deploy of the scaffold shows ColdBoot, not the Astro starter.
+import Lockup from '../assets/brand/lockup-dark.svg';
+import Base from '../layouts/Base.astro';
+---
+
+<Base
+  title="ColdBoot — offline survival tools for your phone"
+  description="ColdBoot is an offline-first field kit for iOS and Android. Coming soon."
+>
+  <main>
+    <Lockup width={352} height={88} role="img" aria-label="ColdBoot" />
+    <p>Coming soon to iOS and Android.</p>
+  </main>
+</Base>
+
+<style>
+  main {
+    min-height: 100vh;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: 1.5rem;
+    padding: 2rem;
+    text-align: center;
+  }
+
+  main :global(svg) {
+    max-width: 100%;
+    height: auto;
+  }
+
+  p {
+    margin: 0;
+    color: var(--cb-muted);
+    font-size: 1.125rem;
+  }
+</style>

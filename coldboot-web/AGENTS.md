@@ -1,0 +1,131 @@
+# coldboot-web — agent instructions
+
+Marketing site for ColdBoot at <https://coldboot.app>. Right now it is a
+prelaunch page that collects waitlist emails. The app itself lives in
+[Toastbyte-Studios/ColdBoot](https://github.com/Toastbyte-Studios/ColdBoot).
+
+`CLAUDE.md` is a symlink to this file, so Claude Code and other agents read the
+same instructions. Edit this file, not the link.
+
+Unlike the app, this site **does** talk to the network: the waitlist form posts
+to a server endpoint. The app's "no network requests" rule does not apply here.
+
+---
+
+## Stack
+
+| Concern    | Choice                                                     |
+| ---------- | ---------------------------------------------------------- |
+| Framework  | Astro 7, static output by default                          |
+| Language   | TypeScript (strict, `astro/tsconfigs/strict`)              |
+| Hosting    | Cloudflare Workers (static assets + `@astrojs/cloudflare`) |
+| Styling    | Plain CSS with ColdBoot brand tokens; no CSS framework     |
+| Lint       | ESLint 10 flat config + `eslint-plugin-astro`, `import-x`  |
+| Formatting | Prettier + `prettier-plugin-astro`                         |
+
+---
+
+## Key Commands
+
+```bash
+npm run dev           # Astro dev server
+npm run build         # Production build into dist/
+npm run preview       # Build, then serve with wrangler dev (Workers runtime)
+npm run typecheck     # wrangler types + astro check
+npm run lint          # ESLint
+npm run format        # Prettier write
+npm run format:check  # Prettier check (CI)
+npm run cleanup       # format + lint + typecheck + build — run before a PR
+npm run deploy        # Build and wrangler deploy
+```
+
+When starting the dev server from an agent, use background mode
+(`astro dev --background`) and manage it with `astro dev stop`,
+`astro dev status` and `astro dev logs`.
+
+---
+
+## PR requirements
+
+Bump `version` in `package.json` on every PR, following semver:
+
+- Patch — copy changes, styling tweaks, bug fixes
+- Minor — new sections, pages, endpoints
+- Major — breaking changes to deploy config or the waitlist data shape
+
+`.github/workflows/require-version-bump.yml` fails the PR if the version
+matches `main`.
+
+---
+
+## Project Structure
+
+```text
+src/
+  assets/brand/   # Logo SVGs, copied from ColdBoot (do not edit here)
+  layouts/        # Page shells (Base.astro: <head>, meta, global CSS)
+  pages/          # Routes; files here become URLs
+  styles/
+    tokens.css    # ColdBoot brand tokens, copied from ColdBoot (do not edit here)
+    global.css    # Resets and site-wide base styles
+public/           # Served as-is (favicon)
+```
+
+---
+
+## Conventions
+
+### Rendering
+
+- Pages are prerendered to static HTML. Keep it that way unless a route truly
+  needs per-request work.
+- A route that must run on the Worker (the waitlist endpoint) opts out with
+  `export const prerender = false;` at the top of the file.
+- Ship no client JavaScript by default. Prefer HTML and CSS; reach for a
+  `<script>` only when there is no non-JS way, and don't add a UI framework
+  integration (React etc.) for a single interactive element.
+
+### Brand
+
+- Colors come from the `--cb-*` custom properties in `src/styles/tokens.css`.
+  Never hardcode a brand hex in a component.
+- `tokens.css` and everything in `src/assets/brand/` are copies from ColdBoot's
+  `assets/coldboot-assets/`. If the brand changes, re-copy from there; don't
+  edit values in this repo.
+- The page uses the dark scheme (`data-theme="dark"` on `<html>`).
+- Amber (`--cb-accent`) is the single signal color, as in the app: reserve it
+  for the primary action.
+
+### Code
+
+- Import order is enforced (builtin → external → internal → parent → sibling →
+  index, alphabetical within groups).
+- Prettier: 80 columns, 2 spaces, single quotes, trailing commas, semicolons.
+- Scoped `<style>` in each `.astro` component; site-wide rules only in
+  `global.css`.
+- Every interactive element must be keyboard reachable with a visible focus
+  state; respect `prefers-reduced-motion`.
+
+### Cloudflare
+
+- After changing `wrangler.jsonc` (bindings, D1, vars), run `npm run cf:types`
+  so `worker-configuration.d.ts` matches. That file is generated and gitignored.
+- Secrets go in `wrangler secret put <NAME>` for production and `.dev.vars`
+  locally. Never commit `.dev.vars`.
+
+---
+
+## What NOT to Do
+
+- Do not edit brand tokens or logo SVGs here; change them in ColdBoot and copy.
+- Do not add Tailwind or another CSS framework without discussing it first.
+- Do not turn the whole site into server-rendered output to support one form.
+- Do not store anything about waitlist signups beyond what the privacy policy
+  says we store.
+
+---
+
+## Astro documentation
+
+Full docs: <https://docs.astro.build>. Consult the relevant guide before working
+on routing, components, content collections, styling or i18n.
