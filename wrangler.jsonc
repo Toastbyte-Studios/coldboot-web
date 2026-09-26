@@ -1,25 +1,32 @@
 {
-  "$schema": "./node_modules/wrangler/config-schema.json",
-  "compatibility_date": "2026-09-23",
-  "compatibility_flags": ["global_fetch_strictly_public"],
-  "name": "coldboot-web",
-  "main": "@astrojs/cloudflare/entrypoints/server",
-  "assets": {
-    "directory": "./dist",
-    "binding": "ASSETS",
-  },
-  "observability": {
-    "enabled": true,
-  },
-  // Waitlist storage. Locally, `wrangler dev` uses a SQLite file under
-  // .wrangler/. For production, create the database once with
-  // `npx wrangler d1 create coldboot-waitlist` and add the database_id it
-  // prints here (see README, "First deploy").
-  "d1_databases": [
-    {
-      "binding": "DB",
-      "database_name": "coldboot-waitlist",
-      "migrations_dir": "migrations",
-    },
-  ],
+	"$schema": "./node_modules/wrangler/config-schema.json",
+	"compatibility_date": "2026-09-23",
+	"compatibility_flags": [
+		"global_fetch_strictly_public"
+	],
+	"name": "coldboot-web",
+	"main": "@astrojs/cloudflare/entrypoints/server",
+	"assets": {
+		"directory": "./dist",
+		"binding": "ASSETS",
+	},
+	"observability": {
+		"enabled": true,
+	},
+	// Waitlist storage. Locally, `wrangler dev` uses a SQLite file under
+	// .wrangler/. For production, create the database once with
+	// `npx wrangler d1 create coldboot-waitlist` and add the database_id it
+	// prints here (see README, "First deploy").
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "coldboot-waitlist",
+			"migrations_dir": "migrations",
+		},
+		{
+			"binding": "coldboot_waitlist",
+			"database_name": "coldboot-waitlist",
+			"database_id": "d89cad24-5544-44f5-8434-d99437289848"
+		},
+	],
 }
