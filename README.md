@@ -38,7 +38,9 @@ Do this once, and not before the privacy policy page (`/privacy`) exists:
 
 1. `npx wrangler login`
 2. `npx wrangler d1 create coldboot-waitlist`, then add the `database_id` it
-   prints to the `d1_databases` entry in `wrangler.jsonc`.
+   prints to the existing `DB` entry in `wrangler.jsonc`. If Wrangler offers
+   to add a binding to the config for you, decline: it adds a second binding
+   under a different name, and the site only reads `DB`.
 3. `npm run db:migrate:remote` to create the table in production.
 4. `npm run deploy`.
 
