@@ -10,7 +10,11 @@ interface Props {
 }
 
 const { title, description, noindex = false } = Astro.props;
-const canonical = new URL(Astro.url.pathname, Astro.site);
+// With build.format 'file', pages build as privacy.html and index.html, and
+// Astro.url reflects that. The public URLs are /privacy and /, so strip the
+// suffix to keep canonical and og:url pointing at the addresses people use.
+const publicPath = Astro.url.pathname.replace(/(index)?\.html$/, '');
+const canonical = new URL(publicPath, Astro.site);
 ---
 
 <!doctype html>

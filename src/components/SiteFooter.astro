@@ -1,0 +1,47 @@
+---
+import { SITE } from '../data/site';
+---
+
+<footer class="site-footer wrap">
+  <p>
+    ColdBoot is made by <a href={SITE.studio.url}>{SITE.studio.name}</a>
+  </p>
+  <nav aria-label="Footer">
+    <a href="/privacy">Privacy</a>
+    <a href={`mailto:${SITE.contactEmail}`}>Contact</a>
+    <span>
+      © {new Date().getFullYear()} {SITE.studio.legalName}
+    </span>
+  </nav>
+</footer>
+
+<style>
+  .site-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem 1.75rem;
+    padding-block: 2rem 2.5rem;
+    border-top: 1px solid var(--cb-separator);
+    font-size: 0.9375rem;
+    color: var(--cb-muted);
+  }
+
+  p {
+    margin: 0;
+  }
+
+  nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 1.75rem;
+  }
+
+  @media (max-width: 640px) {
+    .site-footer {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+</style>

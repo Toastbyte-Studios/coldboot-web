@@ -1,0 +1,288 @@
+---
+/**
+ * Privacy policy for coldboot.app.
+ *
+ * Every statement here has to stay true of the code. If you change what the
+ * waitlist stores (migrations/), add cookies, analytics or a third-party
+ * script, or pick an email provider, update this page and
+ * PRIVACY.lastUpdated in src/data/site.ts in the same PR.
+ */
+import SiteFooter from '../components/SiteFooter.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import { PRIVACY, SITE, WAITLIST_PROMISE } from '../data/site';
+import Base from '../layouts/Base.astro';
+
+const updated = new Date(`${PRIVACY.lastUpdated}T00:00:00Z`);
+const updatedLabel = updated.toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+  timeZone: 'UTC',
+});
+const mailto = `mailto:${SITE.contactEmail}`;
+---
+
+<Base
+  title="Privacy policy — ColdBoot"
+  description="What coldboot.app collects, why, and how to have it deleted."
+>
+  <SiteHeader />
+
+  <main class="policy wrap">
+    <article>
+      <header>
+        <p class="eyebrow">coldboot.app</p>
+        <h1>Privacy policy</h1>
+        <p class="updated">
+          Last updated{' '}
+          <time datetime={PRIVACY.lastUpdated}>{updatedLabel}</time>
+        </p>
+      </header>
+
+      <p>
+        This policy covers <strong>coldboot.app</strong>, the website for
+        ColdBoot, run by {SITE.studio.legalName} ("we", "us"). It explains what
+        we collect when you visit the site or join the waitlist, and what we do
+        with it. It covers this website only, not the ColdBoot app.
+      </p>
+
+      <section class="summary" aria-labelledby="short-version">
+        <h2 id="short-version">The short version</h2>
+        <ul>
+          <li>
+            The only personal information we collect is the email address you
+            give us to join the waitlist.
+          </li>
+          <li>{WAITLIST_PROMISE.full}</li>
+          <li>
+            We don't sell it, rent it, or share it for anyone else's marketing.
+          </li>
+          <li>This site doesn't use cookies, analytics or ad trackers.</li>
+          <li>
+            You can unsubscribe or ask us to delete your address at any time.
+          </li>
+        </ul>
+      </section>
+
+      <section aria-labelledby="collect">
+        <h2 id="collect">What we collect</h2>
+        <p>When you join the waitlist, we store:</p>
+        <ul>
+          <li>your email address,</li>
+          <li>the date and time you signed up, and</li>
+          <li>which signup form on the page you used.</li>
+        </ul>
+        <p>
+          That's all. We don't ask for your name, and we don't store your IP
+          address, device or browser details with your signup.
+        </p>
+      </section>
+
+      <section aria-labelledby="visiting">
+        <h2 id="visiting">Visiting the site</h2>
+        <p>
+          This site doesn't set cookies and doesn't run analytics, advertising
+          or tracking scripts. Fonts are served from coldboot.app itself, so
+          your browser doesn't contact a font service.
+        </p>
+        <p>
+          Like any website, coldboot.app receives some technical information in
+          order to work, such as your IP address and browser type. Our hosting
+          provider, Cloudflare, processes it to deliver pages and protect the
+          site from abuse. Some of it may appear in operational logs, which we
+          use only to keep the site working and secure, not to identify you.
+        </p>
+      </section>
+
+      <section aria-labelledby="use">
+        <h2 id="use">How we use your email address</h2>
+        <p>
+          {WAITLIST_PROMISE.full} We won't use it for anything else, and every
+          email we send includes a link to unsubscribe.
+        </p>
+        <p>
+          If you're in the European Union or the United Kingdom, we rely on your
+          consent, which you give by joining the waitlist. You can withdraw it
+          at any time by unsubscribing or emailing us.
+        </p>
+      </section>
+
+      <section aria-labelledby="sharing">
+        <h2 id="sharing">Who we share it with</h2>
+        <p>
+          We don't sell, rent or trade your email address, and we don't share it
+          with anyone for their own marketing. We use service providers that
+          handle it on our behalf, only to provide their service to us:
+        </p>
+        <ul>
+          <li>
+            <strong>Cloudflare</strong> hosts this site and the database the
+            waitlist is stored in.
+          </li>
+          <li>
+            <strong>An email delivery service</strong> will send our emails. We
+            haven't chosen one yet, and we'll name it on this page before we
+            send the first email.
+          </li>
+        </ul>
+        <p>
+          We may also disclose information if the law requires it, or to protect
+          the rights and safety of our users or ourselves.
+        </p>
+      </section>
+
+      <section aria-labelledby="storage">
+        <h2 id="storage">Where it's stored</h2>
+        <p>
+          The waitlist is stored with Cloudflare. Cloudflare runs a global
+          network, so your information may be processed outside the country you
+          live in, including in the United States.
+        </p>
+      </section>
+
+      <section aria-labelledby="retention">
+        <h2 id="retention">How long we keep it</h2>
+        <p>
+          We keep your email address until you unsubscribe or ask us to delete
+          it. When you do, we remove it from our list.
+        </p>
+      </section>
+
+      <section aria-labelledby="rights">
+        <h2 id="rights">Your choices and rights</h2>
+        <ul>
+          <li>Unsubscribe with the link at the bottom of any email we send.</li>
+          <li>
+            Email <a href={mailto}>{SITE.contactEmail}</a> to find out what we
+            hold about you, correct it, or have it deleted.
+          </li>
+        </ul>
+        <p>
+          Depending on where you live, for example in the EU, the UK or
+          California, the law may give you further rights over your personal
+          information. Email us to use any of them and we'll respond within the
+          time the law requires.
+        </p>
+      </section>
+
+      <section aria-labelledby="children">
+        <h2 id="children">Children</h2>
+        <p>
+          This site isn't directed at children under 13, and we don't knowingly
+          collect their information. If you think a child has joined the
+          waitlist, email us and we'll delete their address.
+        </p>
+      </section>
+
+      <section aria-labelledby="changes">
+        <h2 id="changes">Changes to this policy</h2>
+        <p>
+          When we change this policy, we'll update the date at the top. If we
+          make a significant change to how we use your email address, we'll tell
+          you by email before it takes effect.
+        </p>
+      </section>
+
+      <section aria-labelledby="contact">
+        <h2 id="contact">Contact</h2>
+        <p>
+          {SITE.studio.legalName}
+          <br />
+          <a href={mailto}>{SITE.contactEmail}</a>
+        </p>
+      </section>
+    </article>
+  </main>
+
+  <SiteFooter />
+</Base>
+
+<style>
+  .policy {
+    padding-block: 3rem 6rem;
+  }
+
+  article {
+    max-width: 42rem;
+  }
+
+  .eyebrow {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--cb-brand);
+  }
+
+  h1 {
+    margin: 1rem 0 0;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(3rem, 7vw, 4.5rem);
+    line-height: 0.92;
+    text-transform: uppercase;
+  }
+
+  .updated {
+    margin: 1rem 0 2.5rem;
+    font-size: 0.9375rem;
+    color: var(--cb-muted);
+  }
+
+  h2 {
+    margin: 3rem 0 0.75rem;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.875rem;
+    line-height: 1.05;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  p,
+  li {
+    font-size: 1.0625rem;
+    line-height: 1.65;
+  }
+
+  p {
+    margin: 0 0 1rem;
+  }
+
+  ul {
+    margin: 0 0 1rem;
+    padding-left: 1.25rem;
+  }
+
+  li + li {
+    margin-top: 0.5rem;
+  }
+
+  li::marker {
+    color: var(--cb-brand);
+  }
+
+  .summary {
+    margin-top: 2rem;
+    padding: 1.5rem 1.75rem 0.5rem;
+    border: 1px solid var(--cb-border);
+    border-radius: 20px;
+    background: var(--cb-surface);
+  }
+
+  .summary h2 {
+    margin-top: 0;
+    font-size: 1.5rem;
+  }
+
+  @media (max-width: 640px) {
+    .policy {
+      padding-block: 1.5rem 4rem;
+    }
+
+    .summary {
+      padding: 1.25rem 1.25rem 0.25rem;
+    }
+  }
+</style>
