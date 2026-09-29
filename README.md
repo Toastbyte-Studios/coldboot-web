@@ -32,16 +32,34 @@ npm run preview            # build, then serve in the Workers runtime
 
 Then submit the form at <http://localhost:8787>.
 
-### First deploy
+### Deploying
 
-Do this once, and not before the privacy policy page (`/privacy`) exists:
+Merging to `main` deploys automatically (`.github/workflows/deploy.yml`): it
+builds, applies any new D1 migrations, then runs `wrangler deploy`. You can
+also redeploy `main` from the Actions tab (Deploy to Cloudflare → Run
+workflow). `npm run deploy` still works from a laptop for emergencies.
+
+The workflow needs two repository secrets (Settings → Secrets and variables →
+Actions). If they're already defined as organization secrets shared with this
+repo, there's nothing to add.
+
+- `CLOUDFLARE_ACCOUNT_ID`: shown on the right of any zone's overview page in
+  the Cloudflare dashboard.
+- `CLOUDFLARE_API_TOKEN`: create one under My Profile → API Tokens, starting
+  from the **Edit Cloudflare Workers** template. Add the permission
+  **Account → D1 → Edit** (for migrations), and make sure the zone resources
+  include `coldboot.app` (for the custom domain).
+
+### First-time setup
+
+Already done for production; kept for reference and for new environments:
 
 1. `npx wrangler login`
 2. `npx wrangler d1 create coldboot-waitlist`, then add the `database_id` it
    prints to the existing `DB` entry in `wrangler.jsonc`. If Wrangler offers
    to add a binding to the config for you, decline: it adds a second binding
    under a different name, and the site only reads `DB`.
-3. `npm run db:migrate:remote` to create the table in production.
+3. `npm run db:migrate:remote` to create the table.
 4. `npm run deploy`. Because `wrangler.jsonc` routes `coldboot.app` as a
    custom domain, this also creates its DNS record and TLS certificate. If it
    fails saying the hostname already has DNS records, delete any A, AAAA or
@@ -76,8 +94,17 @@ dashboard for the `coldboot.app` zone:
 | `npm run cleanup`           | Format, lint, typecheck, test and build in one pass |
 | `npm run deploy`            | Build and deploy to Cloudflare with Wrangler        |
 
-CI runs typecheck, lint, the Prettier check and a build on every pull request,
-and requires the `package.json` version to be bumped.
+## GitHub Actions
+
+| Workflow                   | Runs on        | What it does                                              |
+| -------------------------- | -------------- | --------------------------------------------------------- |
+| `ci.yml`                   | Pull requests  | Typecheck, lint, Prettier check, tests, build             |
+| `require-version-bump.yml` | Pull requests  | Fails if `package.json`'s version matches `main`          |
+| `deploy.yml`               | Push to `main` | Build, apply D1 migrations, deploy to Cloudflare          |
+| `tag-and-release.yml`      | Push to `main` | Tags `v<version>` and creates a GitHub release with notes |
+
+Tagging and release are skipped if the tag already exists, so a merge that
+somehow skipped the version bump doesn't fail; it just doesn't release.
 
 ## Brand assets
 

@@ -59,6 +59,15 @@ Bump `version` in `package.json` on every PR, following semver:
 `.github/workflows/require-version-bump.yml` fails the PR if the version
 matches `main`.
 
+Merging to `main` is a release: `deploy.yml` deploys to production and
+`tag-and-release.yml` tags `v<version>` with a GitHub release. So `main` must
+always be deployable, and the version you bump to is the version that ships.
+Don't run `npm run deploy` by hand unless the workflow is broken.
+
+Changes under `.github/workflows/` can't be pushed through the GitHub
+connector (it lacks the `workflow` scope). Write and lint them with
+`actionlint`, then hand them to a human to commit.
+
 ---
 
 ## Project Structure
