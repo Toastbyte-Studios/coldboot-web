@@ -11,6 +11,17 @@
   "observability": {
     "enabled": true,
   },
+  // Serve the site at coldboot.app. The zone is on this Cloudflare account,
+  // so `wrangler deploy` creates the DNS record and TLS certificate itself.
+  // The apex must have no other A, AAAA or CNAME record, or the deploy fails.
+  // www.coldboot.app is deliberately not attached: redirect it to the apex
+  // with a Cloudflare Redirect Rule instead (see README).
+  "routes": [
+    {
+      "pattern": "coldboot.app",
+      "custom_domain": true,
+    },
+  ],
   // Waitlist storage. The code reads it as `env.DB`. Locally, `wrangler dev`
   // uses a SQLite file under .wrangler/; in production this is the
   // coldboot-waitlist D1 database. Keep a single binding here: if

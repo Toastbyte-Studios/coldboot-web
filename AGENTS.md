@@ -172,6 +172,11 @@ public/           # Served as-is (favicon)
   so `worker-configuration.d.ts` matches. That file is generated and gitignored.
 - Secrets go in `wrangler secret put <NAME>` for production and `.dev.vars`
   locally. Never commit `.dev.vars`.
+- The site is served at `coldboot.app` through a custom-domain route in
+  `wrangler.jsonc`. Don't add `www.coldboot.app` as a route: it's redirected to
+  the apex by a Cloudflare Redirect Rule so there's one canonical host.
+- There is exactly one D1 binding, `DB`. `wrangler d1 create` offers to add a
+  second binding under another name; decline it.
 
 ---
 
