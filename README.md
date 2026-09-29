@@ -42,7 +42,22 @@ Do this once, and not before the privacy policy page (`/privacy`) exists:
    to add a binding to the config for you, decline: it adds a second binding
    under a different name, and the site only reads `DB`.
 3. `npm run db:migrate:remote` to create the table in production.
-4. `npm run deploy`.
+4. `npm run deploy`. Because `wrangler.jsonc` routes `coldboot.app` as a
+   custom domain, this also creates its DNS record and TLS certificate. If it
+   fails saying the hostname already has DNS records, delete any A, AAAA or
+   CNAME record on the apex in the Cloudflare dashboard and deploy again.
+
+### Redirecting www
+
+`www.coldboot.app` isn't attached to the Worker, so it doesn't serve a
+duplicate copy of the site. To send it to the apex, in the Cloudflare
+dashboard for the `coldboot.app` zone:
+
+1. DNS: add an `AAAA` record for `www` pointing to `100::`, proxied (orange
+   cloud). The address is a placeholder; the redirect below answers first.
+2. Rules → Redirect Rules: use the "Redirect from WWW to root" template, or
+   match hostname `www.coldboot.app` and redirect with a 301 to
+   `https://coldboot.app` with the path and query string preserved.
 
 ## Scripts
 
