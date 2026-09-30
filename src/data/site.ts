@@ -6,11 +6,11 @@ export const SITE = {
   name: 'ColdBoot',
   title: 'ColdBoot — offline survival tools for your phone',
   description:
-    'ColdBoot is a field kit for iOS and Android: maps, compass, Morse, sun ' +
-    'times, pantry tracking and a survival library that all work without a ' +
-    'connection. Join the waitlist.',
-  // TODO(launch): replace with the real launch window.
-  launchLabel: 'Launching [SEASON 2026]',
+    'ColdBoot is an offline-first field kit for iOS and Android: maps, ' +
+    'compass, Morse, sun times, pantry tracking and a survival library, ' +
+    'built to work without a connection. Join the waitlist.',
+  // The announced launch window. Update it here if the date moves.
+  launchLabel: 'Launching early 2027',
   platforms: 'iOS + Android',
   studio: {
     name: 'Toastbyte Studios',
@@ -43,7 +43,7 @@ export const PRIVACY = {
 export const READOUTS: ReadonlyArray<{ label: string; value: string }> = [
   { label: 'Signal', value: 'Not required' },
   { label: 'Account', value: 'None to create' },
-  { label: 'Your data', value: 'Stays on the phone' },
+  { label: 'What you save', value: 'Stays on the phone' },
   { label: 'Platforms', value: 'iOS + Android' },
 ];
 
