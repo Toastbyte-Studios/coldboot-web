@@ -3,23 +3,52 @@
 /*
  * Site-level tokens.
  *
- * tokens.css only carries the core palette. The page also uses a few of the
- * app's dark-scheme roles; the values below are copied from DARK_COLORS in
+ * tokens.css carries the core palette for both schemes: light on :root,
+ * dark under [data-theme='dark']. The page also uses a few more of the app's
+ * roles. Their values below are copied from LIGHT_COLORS and DARK_COLORS in
  * ColdBoot's src/theme/colors.ts (named after the same roles) so they stay
- * traceable. Change them there first.
+ * traceable, and are laid out the same way. Change them there first.
  */
 :root {
-  --cb-separator: #22313d; /* SEPARATOR */
-  --cb-secondary-container: #2f4f6b; /* SECONDARY_CONTAINER */
-  --cb-accent-container: #3a2a12; /* ACCENT_CONTAINER */
-  --cb-placeholder: #557286; /* CHEVRON */
-  --cb-bezel: #0b131a; /* BACKGROUND_GRADIENT stop 3 */
-  --cb-contour: #1b2f42; /* BACKGROUND_GRADIENT stop 1 */
+  --cb-muted-ground: #384f60; /* MUTED_ON_GROUND: MUTED is 4.2:1 on BACKGROUND */
+  /* BORDER, the kit's hairline role. The app's light SEPARATOR (#dcecf7) is
+     this page's ground, so lines drawn on it would vanish. */
+  --cb-separator: #a9c5da;
+  --cb-secondary-container: #c9deec; /* SECONDARY_CONTAINER */
+  --cb-on-secondary-container: #14344b; /* ON_SECONDARY_CONTAINER */
+  --cb-accent-container: #f5e3d2; /* ACCENT_CONTAINER */
+  --cb-on-accent-container: #8a4a0c; /* ON_ACCENT_CONTAINER */
+  --cb-on-accent: #ffffff; /* onColor(ACCENT), theme/colorUtils.ts */
+  /* MUTED in light, the app's placeholder color; CHEVRON in dark. The two
+     happen to share a value, so there is no dark override. */
+  --cb-placeholder: #557286;
+  --cb-bezel: #c9deec; /* BACKGROUND_GRADIENT stop 3 */
+  --cb-contour: #f1f7fb; /* BACKGROUND_GRADIENT stop 1 */
+  /* The logo swaps with the scheme, as LogoHeader does in the app. */
+  --cb-mark-tile: var(--cb-tile-light);
+  --cb-mark-print: var(--cb-ink);
+  /* The light icon's print shadow: steel at 28%. */
+  --cb-shadow: rgb(47 88 117 / 28%);
 
   /* --font-display, --font-body and --font-mono are defined by Astro's
      <Font> components in Base.astro (see `fonts` in astro.config.mjs). */
 
   --wrap: min(1200px, 100% - 2.5rem);
+}
+
+[data-theme='dark'] {
+  --cb-muted-ground: #8ca3b4; /* MUTED_ON_GROUND */
+  --cb-separator: #22313d; /* SEPARATOR */
+  --cb-secondary-container: #2f4f6b; /* SECONDARY_CONTAINER */
+  --cb-on-secondary-container: #dcecf7; /* ON_SECONDARY_CONTAINER */
+  --cb-accent-container: #3a2a12; /* ACCENT_CONTAINER */
+  --cb-on-accent-container: #ffb020; /* ON_ACCENT_CONTAINER */
+  --cb-on-accent: #101b24; /* onColor(ACCENT) */
+  --cb-bezel: #0b131a; /* BACKGROUND_GRADIENT stop 3 */
+  --cb-contour: #1b2f42; /* BACKGROUND_GRADIENT stop 1 */
+  --cb-mark-tile: var(--cb-tile-dark);
+  --cb-mark-print: var(--cb-ice);
+  --cb-shadow: rgb(0 0 0 / 45%);
 }
 
 *,
@@ -29,7 +58,7 @@
 }
 
 html {
-  color-scheme: dark;
+  color-scheme: light;
   background: var(--cb-bg);
   color: var(--cb-text);
   -webkit-text-size-adjust: 100%;
@@ -42,6 +71,10 @@ body {
   font-family: var(--font-body);
   line-height: 1.5;
   overflow-x: hidden;
+}
+
+html[data-theme='dark'] {
+  color-scheme: dark;
 }
 
 a {
