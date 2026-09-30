@@ -6,9 +6,9 @@ export const SITE = {
   name: 'ColdBoot',
   title: 'ColdBoot — offline survival tools for your phone',
   description:
-    'ColdBoot is a field kit for iOS and Android: maps, compass, Morse, sun ' +
-    'times, pantry tracking and a survival library that all work without a ' +
-    'connection. Join the waitlist.',
+    'ColdBoot is an offline-first field kit for iOS and Android: maps, ' +
+    'compass, Morse, sun times, pantry tracking and a survival library, ' +
+    'built to work without a connection. Join the waitlist.',
   // TODO(launch): replace with the real launch window.
   launchLabel: 'Launching [SEASON 2026]',
   platforms: 'iOS + Android',

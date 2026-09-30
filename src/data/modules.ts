@@ -39,7 +39,7 @@ export const MODULES: readonly SiteModule[] = [
   {
     name: 'Reference',
     icon: 'book',
-    blurb: "A survival library that doesn't need a search bar.",
+    blurb: 'A survival library you can search with no signal.',
     tools: [
       'Health',
       'Survival Guide',
