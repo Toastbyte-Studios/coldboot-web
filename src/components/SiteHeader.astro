@@ -1,5 +1,6 @@
 ---
 import Mark from './Mark.astro';
+import ThemeToggle from './ThemeToggle.astro';
 ---
 
 <header class="site-header wrap">
@@ -9,9 +10,12 @@ import Mark from './Mark.astro';
       COLDBOOT
     </span>
   </a>
-  <a class="pill" href="/#waitlist">
-    Join the waitlist
-  </a>
+  <div class="actions">
+    <a class="pill" href="/#waitlist">
+      Join the waitlist
+    </a>
+    <ThemeToggle />
+  </div>
 </header>
 
 <style>
@@ -40,6 +44,12 @@ import Mark from './Mark.astro';
     letter-spacing: 0.04em;
   }
 
+  .actions {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+  }
+
   .pill {
     display: inline-flex;
     align-items: center;
@@ -58,9 +68,9 @@ import Mark from './Mark.astro';
     border-color: var(--cb-brand);
   }
 
-  /* Narrowest phones: the mark carries the brand on its own so the
-     waitlist link keeps to one line. The link's aria-label still names it. */
-  @media (max-width: 380px) {
+  /* Phones: the mark carries the brand on its own so the waitlist link and
+     the theme toggle fit on one line. The link's aria-label still names it. */
+  @media (max-width: 480px) {
     .wordmark {
       display: none;
     }
@@ -75,9 +85,24 @@ import Mark from './Mark.astro';
       font-size: 1.375rem;
     }
 
+    .actions {
+      gap: 0.5rem;
+    }
+
     .pill {
       padding: 0 1rem;
       font-size: 0.875rem;
+    }
+  }
+
+  @media (max-width: 360px) {
+    .site-header {
+      gap: 0.75rem;
+    }
+
+    .pill {
+      padding: 0 0.75rem;
+      font-size: 0.8125rem;
     }
   }
 </style>
