@@ -18,6 +18,10 @@ const canonical = new URL(publicPath, Astro.site);
 ---
 
 <!doctype html>
+<!--
+  data-theme="dark" is the no-JavaScript default. With JavaScript, the inline
+  script below replaces it with the visitor's choice before first paint.
+-->
 <html lang="en" data-theme="dark">
   <head>
     <meta charset="utf-8" />
@@ -30,7 +34,87 @@ const canonical = new URL(publicPath, Astro.site);
     <Font cssVariable="--font-display" preload={[{ weight: '700' }]} />
     <Font cssVariable="--font-body" preload={[{ weight: '400' }]} />
     <Font cssVariable="--font-mono" />
-    <meta name="theme-color" content="#101b24" />
+    <!-- BACKGROUND in each scheme. The script turns on the one in use. -->
+    <meta name="theme-color" content="#101b24" data-scheme="dark" />
+    <meta
+      name="theme-color"
+      content="#dcecf7"
+      data-scheme="light"
+      media="not all"
+    />
+    <script is:inline>
+      // Theme: 'light', 'dark' or 'system' (the default), like the app's
+      // Settings → Appearance → Theme. Runs before first paint so the page
+      // never flashes the wrong scheme. Only an explicit Light or Dark choice
+      // is stored; choosing System clears it. See ThemeToggle.astro.
+      (() => {
+        const KEY = 'coldboot-theme';
+        const root = document.documentElement;
+        const media = window.matchMedia('(prefers-color-scheme: dark)');
+        let choice = 'system';
+
+        const load = () => {
+          let saved = null;
+          try {
+            saved = localStorage.getItem(KEY);
+          } catch {
+            // Storage blocked: fall back to following the system.
+          }
+          choice = saved === 'light' || saved === 'dark' ? saved : 'system';
+        };
+
+        const apply = () => {
+          const system = media.matches ? 'dark' : 'light';
+          const scheme = choice === 'system' ? system : choice;
+          root.dataset.theme = scheme;
+          document.querySelectorAll('meta[name="theme-color"]').forEach((m) => {
+            m.setAttribute(
+              'media',
+              m.dataset.scheme === scheme ? 'all' : 'not all',
+            );
+          });
+        };
+
+        const syncToggles = () => {
+          document.querySelectorAll('[data-theme-toggle]').forEach((toggle) => {
+            const input = toggle.querySelector(`input[value="${choice}"]`);
+            if (input) input.checked = true;
+            toggle.hidden = false;
+          });
+        };
+
+        const refresh = () => {
+          load();
+          apply();
+          syncToggles();
+        };
+
+        load();
+        apply();
+        media.addEventListener('change', apply);
+        document.addEventListener('DOMContentLoaded', syncToggles);
+        // Another tab changed it, or this page came back from the back/forward
+        // cache after the choice changed elsewhere.
+        window.addEventListener('storage', (e) => {
+          if (e.key === KEY || e.key === null) refresh();
+        });
+        window.addEventListener('pageshow', (e) => {
+          if (e.persisted) refresh();
+        });
+        document.addEventListener('change', (e) => {
+          const input = e.target;
+          if (!input.closest || !input.closest('[data-theme-toggle]')) return;
+          choice = input.value;
+          try {
+            if (choice === 'system') localStorage.removeItem(KEY);
+            else localStorage.setItem(KEY, choice);
+          } catch {
+            // Storage blocked: the choice still applies to this page.
+          }
+          apply();
+        });
+      })();
+    </script>
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="ColdBoot" />
     <meta property="og:title" content={title} />

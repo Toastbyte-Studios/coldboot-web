@@ -1,0 +1,102 @@
+---
+/**
+ * Light / Dark / System, the same three choices and order as the app's
+ * Settings → Appearance → Theme, drawn as icon segments so they fit beside
+ * the waitlist link on a phone.
+ *
+ * The inline script in Base.astro does the work: it applies the saved choice
+ * before first paint, checks the matching radio, reveals this control and
+ * saves changes. Without JavaScript nothing could be saved, so the control
+ * stays hidden and the page keeps its default dark scheme.
+ */
+import Icon from './Icon.astro';
+
+const OPTIONS = [
+  { value: 'light', label: 'Light', icon: 'sunny' },
+  { value: 'dark', label: 'Dark', icon: 'moon' },
+  { value: 'system', label: 'System', icon: 'contrast' },
+] as const;
+---
+
+<fieldset class="theme-toggle" data-theme-toggle hidden>
+  <legend class="visually-hidden">Theme</legend>
+  {OPTIONS.map(({ value, label, icon }) => (
+    <label title={label}>
+      <input
+        class="visually-hidden"
+        type="radio"
+        name="theme"
+        value={value}
+        checked={value === 'system'}
+      />
+      <span class="segment">
+        <Icon name={icon} size={18} />
+        <span class="visually-hidden">{label}</span>
+      </span>
+    </label>
+  ))}
+</fieldset>
+
+<style>
+  .theme-toggle {
+    display: inline-flex;
+    flex-shrink: 0;
+    gap: 2px;
+    min-width: 0;
+    margin: 0;
+    padding: 3px;
+    border: 1px solid var(--cb-border);
+    border-radius: 999px;
+  }
+
+  /* The display rule above would otherwise override the hidden attribute. */
+  .theme-toggle[hidden] {
+    display: none;
+  }
+
+  label {
+    position: relative;
+    display: flex;
+  }
+
+  .segment {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 36px;
+    border-radius: 999px;
+    color: var(--cb-muted-ground);
+    cursor: pointer;
+  }
+
+  label:hover .segment {
+    color: var(--cb-text);
+  }
+
+  /* A raised chip, like the selected segment of the app's iOS control, with
+     a brand ring so the choice is clear in both schemes (6:1 or more). */
+  input:checked + .segment {
+    background: var(--cb-surface);
+    box-shadow: inset 0 0 0 1px var(--cb-brand);
+    color: var(--cb-text);
+  }
+
+  input:focus-visible + .segment {
+    outline: 2px solid var(--cb-accent);
+    outline-offset: 2px;
+  }
+
+  @media (max-width: 640px) {
+    .segment {
+      width: 34px;
+    }
+  }
+
+  /* Smallest phones. Still above WCAG 2.2's 24px minimum target size. */
+  @media (max-width: 360px) {
+    .segment {
+      width: 28px;
+    }
+  }
+</style>

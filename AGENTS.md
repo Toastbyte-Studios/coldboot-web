@@ -115,14 +115,20 @@ public/           # Served as-is (favicon)
   `assets/coldboot-assets/`. If the brand changes, re-copy from there; don't
   edit values in this repo.
 - A few extra app colors the page needs (`--cb-separator`,
-  `--cb-accent-container`, ...) live in `global.css`, each commented with the
-  `DARK_COLORS` role in ColdBoot's `src/theme/colors.ts` it comes from.
+  `--cb-accent-container`, ...) live in `global.css`, light on `:root` and dark
+  under `[data-theme='dark']`, each commented with the `LIGHT_COLORS` or
+  `DARK_COLORS` role in ColdBoot's `src/theme/colors.ts` it comes from. Every
+  color must work in both schemes.
 - Fonts are Barlow Condensed (display), Barlow (body) and IBM Plex Mono
   (labels), configured under `fonts` in `astro.config.mjs` and emitted by the
   `<Font>` components in `Base.astro`. Astro downloads them at build time and
   serves them from our own domain, so builds need network access but
   visitors' browsers never contact a font CDN. Keep it that way.
-- The page uses the dark scheme (`data-theme="dark"` on `<html>`).
+- Light, Dark or System (the default), like the app's Settings → Appearance →
+  Theme. The toggle is `ThemeToggle.astro` in the header; the inline script in
+  `Base.astro` sets `data-theme` on `<html>` before first paint and stores only
+  an explicit Light or Dark choice (`coldboot-theme` in localStorage). Without
+  JavaScript the page stays on its `data-theme="dark"` default.
 - Amber (`--cb-accent`) is the single signal color, as in the app: reserve it
   for the primary action.
 
@@ -150,9 +156,9 @@ public/           # Served as-is (favicon)
 ### Privacy
 
 - `src/pages/privacy.astro` must stay true of the code. Any PR that changes
-  what the waitlist stores, adds cookies, analytics or a third-party script,
-  or picks an email provider must update the policy and `PRIVACY.lastUpdated`
-  in `src/data/site.ts` in the same PR.
+  what the waitlist stores, adds cookies, analytics, a third-party script or
+  anything else stored in the browser, or picks an email provider must update
+  the policy and `PRIVACY.lastUpdated` in `src/data/site.ts` in the same PR.
 - What joining the waitlist signs someone up for lives in `WAITLIST_PROMISE`
   in `src/data/site.ts`. The form note, `/joined` and the policy all read it;
   don't restate the promise in markup.

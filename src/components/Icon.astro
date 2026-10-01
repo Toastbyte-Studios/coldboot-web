@@ -1,9 +1,12 @@
 ---
 /**
  * Outline icons in the style of the app's Ionicons `*-outline` set, drawn
- * locally so the site doesn't pull an icon font.
+ * locally so the site doesn't pull an icon font. The module icons come first;
+ * sunny, moon and contrast are for the theme toggle.
  */
-import type { IconName } from '../data/modules';
+import type { IconName as ModuleIconName } from '../data/modules';
+
+type IconName = ModuleIconName | 'sunny' | 'moon' | 'contrast';
 
 interface Props {
   name: IconName;
@@ -23,6 +26,11 @@ const PATHS: Record<IconName, string> = {
     '<path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><polyline points="9 12 11 14 15 10"/>',
   earth:
     '<circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c2.4 2.5 3.6 5.5 3.6 9s-1.2 6.5-3.6 9c-2.4-2.5-3.6-5.5-3.6-9S9.6 5.5 12 3z"/>',
+  sunny:
+    '<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/>',
+  moon: '<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>',
+  contrast:
+    '<circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/>',
 };
 ---
 

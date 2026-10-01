@@ -3,9 +3,9 @@
  * Privacy policy for coldboot.app.
  *
  * Every statement here has to stay true of the code. If you change what the
- * waitlist stores (migrations/), add cookies, analytics or a third-party
- * script, or pick an email provider, update this page and
- * PRIVACY.lastUpdated in src/data/site.ts in the same PR.
+ * waitlist stores (migrations/), add cookies, analytics, a third-party script
+ * or anything else stored in the browser, or pick an email provider, update
+ * this page and PRIVACY.lastUpdated in src/data/site.ts in the same PR.
  */
 import SiteFooter from '../components/SiteFooter.astro';
 import SiteHeader from '../components/SiteHeader.astro';
@@ -84,6 +84,11 @@ const mailto = `mailto:${SITE.contactEmail}`;
           This site doesn't set cookies and doesn't run analytics, advertising
           or tracking scripts. Fonts are served from coldboot.app itself, so
           your browser doesn't contact a font service.
+        </p>
+        <p>
+          If you pick Light or Dark with the theme switch, your browser
+          remembers that choice in its local storage, on your device. It's never
+          sent to us, and picking System clears it.
         </p>
         <p>
           Like any website, coldboot.app receives some technical information in
@@ -227,7 +232,7 @@ const mailto = `mailto:${SITE.contactEmail}`;
   .updated {
     margin: 1rem 0 2.5rem;
     font-size: 0.9375rem;
-    color: var(--cb-muted);
+    color: var(--cb-muted-ground);
   }
 
   h2 {
