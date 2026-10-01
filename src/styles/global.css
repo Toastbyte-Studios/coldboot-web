@@ -19,9 +19,7 @@
   --cb-accent-container: #f5e3d2; /* ACCENT_CONTAINER */
   --cb-on-accent-container: #8a4a0c; /* ON_ACCENT_CONTAINER */
   --cb-on-accent: #ffffff; /* onColor(ACCENT), theme/colorUtils.ts */
-  /* MUTED in light, the app's placeholder color; CHEVRON in dark. The two
-     happen to share a value, so there is no dark override. */
-  --cb-placeholder: #557286;
+  --cb-placeholder: #557286; /* MUTED, the app's placeholder color */
   --cb-bezel: #c9deec; /* BACKGROUND_GRADIENT stop 3 */
   --cb-contour: #f1f7fb; /* BACKGROUND_GRADIENT stop 1 */
   /* The logo swaps with the scheme, as LogoHeader does in the app. */
@@ -44,6 +42,7 @@
   --cb-accent-container: #3a2a12; /* ACCENT_CONTAINER */
   --cb-on-accent-container: #ffb020; /* ON_ACCENT_CONTAINER */
   --cb-on-accent: #101b24; /* onColor(ACCENT) */
+  --cb-placeholder: #8ca3b4; /* MUTED */
   --cb-bezel: #0b131a; /* BACKGROUND_GRADIENT stop 3 */
   --cb-contour: #1b2f42; /* BACKGROUND_GRADIENT stop 1 */
   --cb-mark-tile: var(--cb-tile-dark);
