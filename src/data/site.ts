@@ -46,20 +46,3 @@ export const READOUTS: ReadonlyArray<{ label: string; value: string }> = [
   { label: 'What you save', value: 'Stays on the phone' },
   { label: 'Platforms', value: 'iOS + Android' },
 ];
-
-/**
- * Example values for the solar-cycle illustration. They are sample UI data,
- * not a claim about any particular place or date.
- */
-export const SAMPLE_SUN_TIMES: ReadonlyArray<{
-  label: string;
-  time: string;
-  highlight?: boolean;
-}> = [
-  { label: 'Dawn', time: '5:58 AM' },
-  { label: 'Sunrise', time: '6:24 AM' },
-  { label: 'Solar noon', time: '12:38 PM' },
-  { label: 'Golden hour', time: '6:18 PM' },
-  { label: 'Sunset', time: '6:52 PM', highlight: true },
-  { label: 'Dusk', time: '7:18 PM' },
-];

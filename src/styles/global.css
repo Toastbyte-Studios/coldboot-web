@@ -27,6 +27,9 @@
   --cb-mark-print: var(--cb-ink);
   /* The light icon's print shadow: steel at 28%. */
   --cb-shadow: rgb(47 88 117 / 28%);
+  /* The spotlight's Morse lamp: ACCENT from DARK_COLORS in both schemes, so
+     a lit lamp looks lit on either ground. Decorative, not text. */
+  --cb-lamp: #ffb020;
 
   /* --font-display, --font-body and --font-mono are defined by Astro's
      <Font> components in Base.astro (see `fonts` in astro.config.mjs). */

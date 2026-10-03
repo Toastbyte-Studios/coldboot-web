@@ -1,4 +1,5 @@
 ---
+import FeatureSpotlight from '../components/FeatureSpotlight.astro';
 import Mark from '../components/Mark.astro';
 import ModuleCard from '../components/ModuleCard.astro';
 import PhoneMock from '../components/PhoneMock.astro';
@@ -6,7 +7,7 @@ import SiteFooter from '../components/SiteFooter.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import WaitlistForm from '../components/WaitlistForm.astro';
 import { MODULES } from '../data/modules';
-import { READOUTS, SAMPLE_SUN_TIMES, SITE } from '../data/site';
+import { READOUTS, SITE } from '../data/site';
 import Base from '../layouts/Base.astro';
 
 // The same closed contour, stepped down in scale and rotated, reads as a
@@ -99,32 +100,7 @@ const CONTOUR_STEPS = [
       </div>
     </section>
 
-    <section class="wrap solar" aria-labelledby="solar-heading">
-      <figure class="sun-card">
-        <figcaption class="sun-card-head">
-          <span>Today · your location</span>
-          <span class="accent">Sunset in 2h 14m</span>
-        </figcaption>
-        <dl>
-          {SAMPLE_SUN_TIMES.map((t) => (
-            <div class:list={{ highlight: t.highlight }}>
-              <dt>{t.label}</dt>
-              <dd>{t.time}</dd>
-            </div>
-          ))}
-        </dl>
-      </figure>
-      <div class="solar-copy">
-        <p class="eyebrow">Solar cycle</p>
-        <h2 id="solar-heading">The one clock that never needs charging.</h2>
-        <p class="section-lede">
-          ColdBoot keeps a live countdown to the next sunrise or sunset on the
-          home screen and in Alerts, updated as you move. Dawn, dusk, solar noon
-          and golden hour are calculated on the phone itself, so they're there
-          whether or not you have service.
-        </p>
-      </div>
-    </section>
+    <FeatureSpotlight />
 
     <section class="wrap closing" aria-labelledby="closing-heading">
       <Mark size={72} />
@@ -273,75 +249,6 @@ const CONTOUR_STEPS = [
     margin-top: 3.5rem;
   }
 
-  /* Solar */
-  .solar {
-    display: grid;
-    grid-template-columns: minmax(0, 500px) minmax(0, 1fr);
-    align-items: center;
-    gap: 5.5rem;
-    padding-top: 8.5rem;
-  }
-
-  .solar h2 {
-    margin-top: 1rem;
-    font-size: clamp(2.75rem, 4.4vw, 3.75rem);
-    line-height: 0.95;
-  }
-
-  .sun-card {
-    margin: 0;
-    padding: 1.75rem;
-    border: 1px solid var(--cb-border);
-    border-radius: 24px;
-    background: var(--cb-surface);
-  }
-
-  .sun-card-head {
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--cb-muted);
-  }
-
-  .accent {
-    color: var(--cb-accent);
-  }
-
-  .sun-card dl {
-    margin: 1.25rem 0 0;
-  }
-
-  .sun-card dl > div {
-    display: flex;
-    justify-content: space-between;
-    padding-block: 0.875rem;
-    border-bottom: 1px solid var(--cb-separator);
-    font-size: 1.0625rem;
-  }
-
-  .sun-card dl > div:last-child {
-    padding-bottom: 0;
-    border-bottom: 0;
-  }
-
-  .sun-card dt {
-    color: var(--cb-muted);
-  }
-
-  .sun-card dd {
-    margin: 0;
-    font-family: var(--font-mono);
-  }
-
-  .sun-card .highlight dt,
-  .sun-card .highlight dd {
-    color: var(--cb-accent);
-  }
-
   /* Closing */
   .closing {
     display: flex;
@@ -369,15 +276,6 @@ const CONTOUR_STEPS = [
 
     .module-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .solar {
-      grid-template-columns: minmax(0, 1fr);
-      gap: 2rem;
-    }
-
-    .sun-card {
-      order: 2;
     }
   }
 
@@ -428,10 +326,6 @@ const CONTOUR_STEPS = [
     .module-grid {
       grid-template-columns: minmax(0, 1fr);
       margin-top: 2rem;
-    }
-
-    .solar {
-      padding-top: 5.5rem;
     }
 
     .closing {
