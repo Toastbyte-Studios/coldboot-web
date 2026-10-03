@@ -1,0 +1,475 @@
+---
+/**
+ * Four tools, one at a time: tabs that advance on their own every few
+ * seconds, with an illustration and copy for each. Copy and sample data live
+ * in src/data/spotlight.ts.
+ *
+ * Without JavaScript there are no tabs: the four panels simply stack. With
+ * it, the inline script in Base.astro has already put a `js` class on <html>
+ * before first paint, so the CSS below lays out the tabbed version straight
+ * away and nothing shifts when the script here boots.
+ */
+import { SPOTLIGHT, SPOTLIGHT_FEATURES } from '../data/spotlight';
+import Icon from './Icon.astro';
+import InventoryCard from './spotlight/InventoryCard.astro';
+import MorseCard from './spotlight/MorseCard.astro';
+import ReferenceCard from './spotlight/ReferenceCard.astro';
+import SkyCard from './spotlight/SkyCard.astro';
+
+const CARDS = {
+  morse: MorseCard,
+  reference: ReferenceCard,
+  sky: SkyCard,
+  inventory: InventoryCard,
+};
+---
+
+<section
+  class="wrap spotlight"
+  aria-labelledby="spotlight-heading"
+  data-spotlight
+  data-state="paused"
+  style={`--spotlight-interval: ${SPOTLIGHT.intervalSeconds}s`}
+>
+  <div class="head">
+    <div>
+      <p class="eyebrow">{SPOTLIGHT.eyebrow}</p>
+      <h2 id="spotlight-heading">{SPOTLIGHT.heading}</h2>
+    </div>
+    <button type="button" class="rotation" data-spotlight-rotation>
+      <span class="when-rotating">
+        <Icon name="pause" size={16} />
+        Pause<span class="visually-hidden"> the slideshow</span>
+      </span>
+      <span class="when-stopped">
+        <Icon name="play" size={16} />
+        Play<span class="visually-hidden"> the slideshow</span>
+      </span>
+    </button>
+  </div>
+
+  <div class="tabs" role="tablist" aria-label="Featured tools">
+    {SPOTLIGHT_FEATURES.map((feature, i) => (
+      <button
+        type="button"
+        role="tab"
+        id={`spotlight-tab-${feature.id}`}
+        aria-controls={`spotlight-panel-${feature.id}`}
+        aria-selected={i === 0 ? 'true' : 'false'}
+        tabindex={i === 0 ? 0 : -1}
+      >
+        <Icon name={feature.icon} size={20} />
+        <span>{feature.tab}</span>
+        <span class="progress" aria-hidden="true" />
+      </button>
+    ))}
+  </div>
+
+  <div class="panels" data-spotlight-panels>
+    {SPOTLIGHT_FEATURES.map((feature, i) => {
+      const Card = CARDS[feature.id];
+      return (
+        <div
+          class="panel"
+          id={`spotlight-panel-${feature.id}`}
+          data-active={i === 0 ? '' : undefined}
+        >
+          <div class="illustration">
+            <Card />
+          </div>
+          <div class="copy">
+            <p class="eyebrow">{feature.eyebrow}</p>
+            <h3>{feature.heading}</h3>
+            <p class="lede">{feature.body}</p>
+          </div>
+        </div>
+      );
+    })}
+  </div>
+</section>
+
+<script>
+  /**
+   * Tabs that advance on their own, following the WAI-ARIA APG pattern for
+   * an auto-rotating carousel with tabs:
+   * - Pause / Play stops and restarts rotation;
+   * - choosing a tab, or moving keyboard focus into the tabs or panels, stops
+   *   it until Play is pressed;
+   * - a mouse hovering over the section, the section leaving the viewport or
+   *   the page being hidden pauses it;
+   * - with prefers-reduced-motion it never starts, and Play is hidden.
+   * The progress bar's CSS animation is the timer: when it ends, the next tab
+   * shows, so pausing the bar pauses the clock.
+   */
+  function initSpotlight(root: HTMLElement): void {
+    const tabs = Array.from(
+      root.querySelectorAll<HTMLButtonElement>('[role="tab"]'),
+    );
+    const found = tabs.map((tab) =>
+      document.getElementById(tab.getAttribute('aria-controls') ?? ''),
+    );
+    if (tabs.length === 0 || found.some((panel) => panel === null)) return;
+    const panels = found as HTMLElement[];
+    const rotation = root.querySelector<HTMLButtonElement>(
+      '[data-spotlight-rotation]',
+    );
+    const live = root.querySelector<HTMLElement>('[data-spotlight-panels]');
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    let index = 0;
+    let stopped = reduceMotion.matches;
+    let hovering = false;
+    let onScreen = false;
+
+    panels.forEach((panel, i) => {
+      panel.setAttribute('role', 'tabpanel');
+      panel.setAttribute('aria-labelledby', tabs[i]?.id ?? '');
+      panel.tabIndex = 0;
+      panel.inert = i !== index;
+    });
+
+    const render = (): void => {
+      const rotating = !stopped && !hovering && onScreen && !document.hidden;
+      root.dataset.state = stopped
+        ? 'stopped'
+        : rotating
+          ? 'running'
+          : 'paused';
+      // Announce manual changes, but not every automatic one.
+      live?.setAttribute('aria-live', stopped ? 'polite' : 'off');
+    };
+
+    const select = (next: number, focus = false): void => {
+      index = (next + tabs.length) % tabs.length;
+      tabs.forEach((tab, i) => {
+        const active = i === index;
+        tab.setAttribute('aria-selected', String(active));
+        tab.tabIndex = active ? 0 : -1;
+        const panel = panels[i];
+        if (!panel) return;
+        panel.toggleAttribute('data-active', active);
+        // The outgoing panel fades for a moment; inert takes it out of the
+        // tab order and the accessibility tree straight away.
+        panel.inert = !active;
+      });
+      if (focus) tabs[index]?.focus();
+    };
+
+    const stop = (): void => {
+      stopped = true;
+      render();
+    };
+
+    const MOVES: Record<string, (current: number) => number> = {
+      ArrowRight: (current) => current + 1,
+      ArrowLeft: (current) => current - 1,
+      Home: () => 0,
+      End: () => tabs.length - 1,
+    };
+
+    tabs.forEach((tab, i) => {
+      tab.addEventListener('click', () => {
+        select(i);
+        stop();
+      });
+      tab.addEventListener('keydown', (event) => {
+        const move = MOVES[event.key];
+        if (!move) return;
+        event.preventDefault();
+        select(move(index), true);
+        stop();
+      });
+    });
+
+    root.addEventListener('focusin', (event) => {
+      if (event.target !== rotation) stop();
+    });
+    root.addEventListener('pointerenter', (event) => {
+      if (event.pointerType !== 'mouse') return;
+      hovering = true;
+      render();
+    });
+    root.addEventListener('pointerleave', (event) => {
+      if (event.pointerType !== 'mouse') return;
+      hovering = false;
+      render();
+    });
+    rotation?.addEventListener('click', () => {
+      stopped = !stopped;
+      render();
+    });
+
+    root.addEventListener('animationend', (event) => {
+      const target = event.target;
+      if (
+        target instanceof HTMLElement &&
+        target.classList.contains('progress') &&
+        root.dataset.state === 'running'
+      ) {
+        select(index + 1);
+      }
+    });
+
+    new IntersectionObserver(
+      (entries) => {
+        onScreen = entries.some((entry) => entry.intersectionRatio >= 0.25);
+        render();
+      },
+      { threshold: [0, 0.25] },
+    ).observe(root);
+    document.addEventListener('visibilitychange', render);
+    reduceMotion.addEventListener('change', () => {
+      if (reduceMotion.matches) stop();
+    });
+
+    render();
+    root.dataset.ready = '';
+  }
+
+  document
+    .querySelectorAll<HTMLElement>('[data-spotlight]')
+    .forEach(initSpotlight);
+</script>
+
+<style>
+  .spotlight {
+    padding-top: 8.5rem;
+  }
+
+  .eyebrow {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--cb-brand);
+  }
+
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    line-height: 0.95;
+    text-transform: uppercase;
+    text-wrap: balance;
+  }
+
+  h2 {
+    margin: 1rem 0 0;
+    font-size: clamp(2.75rem, 4.4vw, 3.75rem);
+  }
+
+  h3 {
+    margin: 1rem 0 0;
+    font-size: clamp(2.25rem, 3.4vw, 3rem);
+  }
+
+  .lede {
+    margin: 1.25rem 0 0;
+    max-width: 38rem;
+    font-size: 1.125rem;
+    line-height: 1.6;
+    color: var(--cb-muted-ground);
+  }
+
+  .head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 1rem 1.5rem;
+  }
+
+  /* Without JavaScript: no controls, and the panels stack. */
+  .rotation,
+  .tabs {
+    display: none;
+  }
+
+  .panels {
+    display: grid;
+    gap: 5rem;
+    margin-top: 3rem;
+  }
+
+  /* With JavaScript, from first paint (see the note at the top). */
+  :global(.js) .rotation {
+    display: inline-flex;
+  }
+
+  :global(.js) .tabs {
+    display: grid;
+  }
+
+  :global(.js) .panel {
+    grid-area: 1 / 1;
+    visibility: hidden;
+    opacity: 0;
+    transition:
+      opacity 0.4s ease,
+      visibility 0s linear 0.4s;
+  }
+
+  :global(.js) .panel[data-active] {
+    visibility: visible;
+    opacity: 1;
+    transition: opacity 0.4s ease;
+  }
+
+  /* Rotation control */
+  .rotation {
+    align-items: center;
+    min-height: 44px;
+    padding: 0 1.125rem;
+    border: 1px solid var(--cb-border);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--cb-text);
+    font: inherit;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    cursor: pointer;
+  }
+
+  .rotation:hover {
+    border-color: var(--cb-brand);
+  }
+
+  /* "Pause" while rotating or paused, "Play" once stopped. */
+  .when-rotating,
+  [data-state='stopped'] .when-stopped {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .when-stopped,
+  [data-state='stopped'] .when-rotating {
+    display: none;
+  }
+
+  /* Tabs */
+  .tabs {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin-top: 2.5rem;
+  }
+
+  [role='tab'] {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    min-height: 56px;
+    padding: 0.75rem 1rem;
+    overflow: hidden;
+    border: 1px solid var(--cb-border);
+    border-radius: 14px;
+    background: transparent;
+    color: var(--cb-muted-ground);
+    font: inherit;
+    font-weight: 600;
+    font-size: 1rem;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  [role='tab']:hover {
+    color: var(--cb-text);
+  }
+
+  [role='tab'][aria-selected='true'] {
+    border-color: var(--cb-brand);
+    background: var(--cb-surface);
+    color: var(--cb-text);
+  }
+
+  .progress {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 3px;
+    background: var(--cb-brand);
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+
+  [data-state='running'] [aria-selected='true'] .progress,
+  [data-state='paused'] [aria-selected='true'] .progress {
+    animation: spotlight-progress var(--spotlight-interval) linear forwards;
+  }
+
+  [data-state='paused'] [aria-selected='true'] .progress {
+    animation-play-state: paused;
+  }
+
+  @keyframes spotlight-progress {
+    to {
+      transform: scaleX(1);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(.js) .rotation {
+      display: none;
+    }
+
+    .progress {
+      animation: none !important;
+    }
+  }
+
+  /* Panels */
+  .panel {
+    display: grid;
+    grid-template-columns: minmax(0, 500px) minmax(0, 1fr);
+    align-items: center;
+    gap: 5.5rem;
+  }
+
+  /* Tablet and below */
+  @media (max-width: 1080px) {
+    .panel {
+      grid-template-columns: minmax(0, 1fr);
+      align-items: start;
+      gap: 2rem;
+    }
+
+    .illustration {
+      order: 2;
+      max-width: 500px;
+    }
+  }
+
+  /* Phone */
+  @media (max-width: 640px) {
+    .spotlight {
+      padding-top: 5.5rem;
+    }
+
+    .eyebrow {
+      font-size: 0.6875rem;
+    }
+
+    .tabs {
+      gap: 0.5rem;
+      margin-top: 2rem;
+    }
+
+    [role='tab'] {
+      flex-direction: column;
+      justify-content: center;
+      gap: 0.375rem;
+      min-height: 72px;
+      padding: 0.625rem 0.25rem;
+      font-size: 0.8125rem;
+      line-height: 1.2;
+      text-align: center;
+    }
+
+    .panels {
+      margin-top: 2rem;
+    }
+  }
+</style>

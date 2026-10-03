@@ -1,0 +1,72 @@
+---
+import { SAMPLE_SKY_EVENTS } from '../../data/spotlight';
+import Icon from '../Icon.astro';
+import SpotlightCard from './SpotlightCard.astro';
+---
+
+<SpotlightCard
+  title="Sky Events"
+  meta="Next 12 months"
+  label="Sky Events listing what's coming: Jupiter rising tonight, a supermoon, the winter solstice and a total lunar eclipse."
+>
+  <ul>
+    {SAMPLE_SKY_EVENTS.map((event) => (
+      <li>
+        <span class="tile">
+          <Icon name={event.icon} size={18} />
+        </span>
+        <span class="label">{event.label}</span>
+        <span class="when">{event.when}</span>
+      </li>
+    ))}
+  </ul>
+</SpotlightCard>
+
+<style>
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    padding-block: 0.875rem;
+    border-bottom: 1px solid var(--cb-separator);
+  }
+
+  li:first-child {
+    padding-top: 0;
+  }
+
+  li:last-child {
+    padding-bottom: 0;
+    border-bottom: 0;
+  }
+
+  .tile {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    border-radius: 9px;
+    background: var(--cb-secondary-container);
+    color: var(--cb-on-secondary-container);
+  }
+
+  .label {
+    flex: 1;
+    font-size: 1.0625rem;
+  }
+
+  .when {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    color: var(--cb-muted);
+    white-space: nowrap;
+  }
+</style>
