@@ -120,6 +120,7 @@ const CARDS = {
     let stopped = reduceMotion.matches;
     let hovering = false;
     let onScreen = false;
+    let rotationFocusStopped = false;
 
     panels.forEach((panel, i) => {
       panel.setAttribute('role', 'tabpanel');
@@ -182,7 +183,8 @@ const CARDS = {
     });
 
     root.addEventListener('focusin', (event) => {
-      if (event.target !== rotation) stop();
+      rotationFocusStopped = event.target === rotation && !stopped;
+      stop();
     });
     root.addEventListener('pointerenter', (event) => {
       if (event.pointerType !== 'mouse') return;
@@ -194,7 +196,15 @@ const CARDS = {
       hovering = false;
       render();
     });
-    rotation?.addEventListener('click', () => {
+    rotation?.addEventListener('pointerdown', () => {
+      rotationFocusStopped = false;
+    });
+    rotation?.addEventListener('click', (event) => {
+      if (rotationFocusStopped && event.detail > 0) {
+        rotationFocusStopped = false;
+        return;
+      }
+      rotationFocusStopped = false;
       stopped = !stopped;
       render();
     });
