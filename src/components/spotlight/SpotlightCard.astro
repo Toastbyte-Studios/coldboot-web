@@ -1,0 +1,60 @@
+---
+/**
+ * The frame every spotlight illustration shares: a surface card with a mono
+ * header row, like the app's cards. Each card is a picture of the app, not
+ * UI, so it is exposed to assistive tech as one image with a description.
+ */
+interface Props {
+  title: string;
+  meta: string;
+  /** Describes the picture for screen readers. */
+  label: string;
+}
+
+const { title, meta, label } = Astro.props;
+---
+
+<figure class="card" role="img" aria-label={label}>
+  <div class="head" aria-hidden="true">
+    <span>{title}</span>
+    <span class="meta">{meta}</span>
+  </div>
+  <div class="body" aria-hidden="true">
+    <slot />
+  </div>
+</figure>
+
+<style>
+  .card {
+    margin: 0;
+    padding: 1.75rem;
+    border: 1px solid var(--cb-border);
+    border-radius: 24px;
+    background: var(--cb-surface);
+  }
+
+  .head {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--cb-muted);
+  }
+
+  .meta {
+    color: var(--cb-brand);
+  }
+
+  .body {
+    margin-top: 1.25rem;
+  }
+
+  @media (max-width: 640px) {
+    .card {
+      padding: 1.25rem;
+    }
+  }
+</style>

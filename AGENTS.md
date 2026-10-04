@@ -76,7 +76,7 @@ connector (it lacks the `workflow` scope). Write and lint them with
 src/
   assets/brand/   # Logo SVGs, copied from ColdBoot (do not edit here)
   components/     # Building blocks (SiteHeader, SiteFooter, WaitlistForm, Mark, ...)
-  data/           # Copy and content as typed data (modules.ts, site.ts)
+  data/           # Copy and content as typed data (modules.ts, site.ts, spotlight.ts)
   layouts/        # Base.astro (<head>, meta, fonts, CSS); Notice.astro (result pages)
   lib/            # Pure logic, unit tested (waitlist.ts: parsing, validation)
   pages/          # Routes; files here become URLs
@@ -106,6 +106,14 @@ public/           # Served as-is (favicon)
 - Ship no client JavaScript by default. Prefer HTML and CSS; reach for a
   `<script>` only when there is no non-JS way, and don't add a UI framework
   integration (React etc.) for a single interactive element.
+- The scripted pieces so far: the theme toggle and `FeatureSpotlight.astro`.
+  The spotlight's tabs advance on their own, following the WAI-ARIA
+  auto-rotating carousel pattern: a Pause / Play control, rotation stops when
+  someone picks a tab or focuses inside it, and it never starts under
+  `prefers-reduced-motion`. Without JavaScript its panels simply stack.
+- The head script in `Base.astro` adds a `js` class to `<html>` before first
+  paint, so a scripted component can lay out its JavaScript state from the
+  start (`:global(.js)` in its CSS) and nothing shifts when it boots.
 
 ### Brand
 
@@ -137,6 +145,9 @@ public/           # Served as-is (favicon)
 - Marketing copy that is likely to change lives in `src/data/`, not in markup.
   `modules.ts` mirrors the app's `MODULES` and `*_TOOLS` in `constants.ts`;
   when the app's tool list changes, update it here.
+- `spotlight.ts` holds the feature spotlight's copy and sample illustration
+  data, with a note on each feature saying where in the app its claims were
+  checked.
 - Don't state a feature the app doesn't have. Check claims against the ColdBoot
   repo before writing them.
 

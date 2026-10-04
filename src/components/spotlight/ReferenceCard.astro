@@ -1,0 +1,113 @@
+---
+import { SAMPLE_REFERENCE } from '../../data/spotlight';
+import Icon from '../Icon.astro';
+import SpotlightCard from './SpotlightCard.astro';
+
+const { query, title, meta, steps, doNot, watchFor } = SAMPLE_REFERENCE;
+---
+
+<SpotlightCard
+  title="Reference"
+  meta="Offline"
+  label={`A Reference search for “${query}” finds ${title}, bookmarked, with its steps, what not to do and what to watch for.`}
+>
+  <div class="search">
+    <Icon name="search" size={18} />
+    <span>{query}</span>
+  </div>
+  <div class="entry">
+    <div class="entry-head">
+      <div>
+        <p class="title">{title}</p>
+        <p class="meta">{meta}</p>
+      </div>
+      <span class="bookmark">
+        <Icon name="bookmark" size={20} />
+      </span>
+    </div>
+    <p class="label">Steps</p>
+    <ol>
+      {steps.map((step) => (
+        <li>{step}</li>
+      ))}
+    </ol>
+    <p class="label">Do not</p>
+    <p class="line">{doNot}</p>
+    <p class="label">Watch for</p>
+    <p class="line">{watchFor}</p>
+  </div>
+</SpotlightCard>
+
+<style>
+  .search {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--cb-brand);
+    border-radius: 12px;
+    background: var(--cb-bg);
+    color: var(--cb-muted);
+  }
+
+  .search span {
+    color: var(--cb-text);
+  }
+
+  .entry {
+    margin-top: 1rem;
+    padding: 1.125rem 1.25rem;
+    border: 1px solid var(--cb-separator);
+    border-radius: 16px;
+  }
+
+  .entry-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  p {
+    margin: 0;
+  }
+
+  .title {
+    font-weight: 600;
+    font-size: 1.125rem;
+  }
+
+  .meta {
+    margin-top: 0.125rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--cb-muted);
+  }
+
+  .bookmark {
+    color: var(--cb-brand);
+  }
+
+  .label {
+    margin-top: 0.875rem;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--cb-brand);
+  }
+
+  ol {
+    margin: 0.25rem 0 0;
+    padding-left: 1.25rem;
+  }
+
+  li,
+  .line {
+    margin-top: 0.25rem;
+    font-size: 0.875rem;
+    line-height: 1.45;
+  }
+</style>

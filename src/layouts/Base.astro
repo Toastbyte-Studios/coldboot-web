@@ -50,6 +50,9 @@ const canonical = new URL(publicPath, Astro.site);
       (() => {
         const KEY = 'coldboot-theme';
         const root = document.documentElement;
+        // Lets CSS lay out scripted components (the feature spotlight) in
+        // their JavaScript state from first paint, so nothing shifts.
+        root.classList.add('js');
         const media = window.matchMedia('(prefers-color-scheme: dark)');
         let choice = 'system';
 

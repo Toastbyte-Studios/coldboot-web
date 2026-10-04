@@ -54,6 +54,14 @@ const OPTIONS = [
     display: none;
   }
 
+  /* With JavaScript the toggle holds its place from first paint, invisible
+     until the script has checked the saved choice, so the header never
+     shifts when it appears. */
+  :global(.js) .theme-toggle[hidden] {
+    display: inline-flex;
+    visibility: hidden;
+  }
+
   label {
     position: relative;
     display: flex;

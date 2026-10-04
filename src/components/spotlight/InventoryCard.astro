@@ -1,0 +1,66 @@
+---
+import { SAMPLE_INVENTORY } from '../../data/spotlight';
+import SpotlightCard from './SpotlightCard.astro';
+
+const count = SAMPLE_INVENTORY.length;
+---
+
+<SpotlightCard
+  title="Inventory"
+  meta={`${count} categories`}
+  label="Inventory with supplies grouped by where they're kept: water, canned food and batteries at Home Base; jumper cables and a blanket in the Main Vehicle."
+>
+  {SAMPLE_INVENTORY.map((group) => (
+    <div class="group">
+      <p class="category">{group.category}</p>
+      <ul>
+        {group.items.map((item) => (
+          <li>
+            <span>{item.name}</span>
+            <span class="amount">{item.amount}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  ))}
+</SpotlightCard>
+
+<style>
+  .group + .group {
+    margin-top: 1.5rem;
+  }
+
+  .category {
+    margin: 0 0 0.25rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--cb-brand);
+  }
+
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  li {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-block: 0.75rem;
+    border-bottom: 1px solid var(--cb-separator);
+    font-size: 1.0625rem;
+  }
+
+  li:last-child {
+    border-bottom: 0;
+  }
+
+  .amount {
+    font-family: var(--font-mono);
+    font-size: 0.9375rem;
+    white-space: nowrap;
+  }
+</style>
