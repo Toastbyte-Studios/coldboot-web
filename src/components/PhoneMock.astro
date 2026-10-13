@@ -1,115 +1,78 @@
 ---
 /**
- * An illustration of the ColdBoot home screen: the solar countdown card and
- * the six module tiles. It is a picture, not UI, so it is exposed to
- * assistive tech as a single image with a description.
+ * The ColdBoot home screen in a phone frame, from real captures of the app:
+ * the light capture in light mode and the dark one in dark mode.
+ *
+ * Both images are in the page and `data-theme` on <html> decides which
+ * shows, so the screen follows the theme toggle (and System) rather than
+ * only the operating system's colour scheme. Without JavaScript the page
+ * stays dark, and so does the screen.
+ *
+ * The phone is in the hero, so both load eagerly: a lazy image in the first
+ * viewport would hold back the page's largest paint. The cost is one extra
+ * small WebP for the theme that isn't showing.
  */
-import { MODULES } from '../data/modules';
-import IconTile from './IconTile.astro';
-import Mark from './Mark.astro';
+import { Image } from 'astro:assets';
+import homeDark from '../assets/screenshots/home-dark.png';
+import homeLight from '../assets/screenshots/home-light.png';
+
+const ALT =
+  "The ColdBoot home screen: today's sunset time with pressure, moon phase and GPS status, above the list of six modules.";
+
+// The screen is 320px wide in the 340px frame, and 280px in the 300px frame
+// on phones. 2x and 3x cover high-density displays.
+const WIDTHS = [280, 320, 560, 640, 960];
+const SIZES = '(max-width: 640px) 280px, 320px';
+
+const SHOTS = [
+  { theme: 'light', src: homeLight },
+  { theme: 'dark', src: homeDark },
+] as const;
 ---
 
-<div
-  class="phone"
-  role="img"
-  aria-label="The ColdBoot home screen: a sunset countdown above tiles for the six modules."
->
-  <div class="screen" aria-hidden="true">
-    <div class="app-bar">
-      <Mark size={30} />
-      <span>ColdBoot</span>
-    </div>
-    <div class="solar">
-      <span class="solar-label">Sunset</span>
-      <span class="solar-time">in 2h 14m</span>
-      <span class="solar-detail">6:52 PM · golden hour from 6:18</span>
-    </div>
-    <ul class="grid">
-      {MODULES.map((m) => (
-        <li>
-          <IconTile name={m.icon} size={36} />
-          <span>{m.name}</span>
-        </li>
-      ))}
-    </ul>
-  </div>
+<div class="phone">
+  {SHOTS.map(({ theme, src }) => (
+    <Image
+      src={src}
+      alt={ALT}
+      widths={WIDTHS}
+      sizes={SIZES}
+      format="webp"
+      quality={80}
+      loading="eager"
+      decoding="async"
+      class:list={['screen', `screen--${theme}`]}
+    />
+  ))}
 </div>
 
 <style>
   .phone {
     width: 340px;
     max-width: 100%;
-    aspect-ratio: 340 / 690;
     border: 10px solid var(--cb-bezel);
     border-radius: 52px;
+    overflow: hidden;
     background: var(--cb-bg);
     box-shadow: 0 40px 80px var(--cb-shadow);
   }
 
   .screen {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    padding: 30px 20px;
+    display: block;
+    width: 100%;
+    height: auto;
   }
 
-  .app-bar {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-family: var(--font-display);
-    font-weight: 600;
-    font-size: 24px;
+  /* Dark is the no-JavaScript default, so it is the one shown unstyled. */
+  .screen--light {
+    display: none;
   }
 
-  .solar {
-    display: grid;
-    padding: 16px 18px;
-    border-radius: 20px;
-    background: var(--cb-accent-container);
+  :global([data-theme='light']) .screen--light {
+    display: block;
   }
 
-  .solar-label {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--cb-on-accent-container);
-  }
-
-  .solar-time {
-    font-family: var(--font-display);
-    font-weight: 600;
-    font-size: 36px;
-    line-height: 1.1;
-    color: var(--cb-on-accent-container);
-  }
-
-  .solar-detail {
-    margin-top: 4px;
-    font-size: 13px;
-  }
-
-  .grid {
-    flex: 1;
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .grid li {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    padding: 14px;
-    border: 1px solid var(--cb-border);
-    border-radius: 18px;
-    background: var(--cb-surface);
-    font-weight: 600;
-    font-size: 15px;
+  :global([data-theme='light']) .screen--dark {
+    display: none;
   }
 </style>
