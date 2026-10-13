@@ -18,6 +18,24 @@ export const SITE = {
     url: 'https://toastbyte.studio/',
   },
   contactEmail: 'support@toastbyte.studio',
+  /**
+   * The link-preview card (og:image) shown when coldboot.app is shared in
+   * Messages, Slack, social posts and so on. Without one, Messages falls
+   * back to the largest image on the page: the hero's phone screenshot.
+   *
+   * public/og.png is a 1200×630 render of the hero in the dark scheme: the
+   * lockup, "Offline field kit · iOS + Android", "Built for zero bars." and
+   * the dark home-screen capture in a phone frame. It deliberately carries
+   * no launch date, so it doesn't go stale when launchLabel changes.
+   */
+  shareImage: {
+    path: '/og.png',
+    width: 1200,
+    height: 630,
+    alt:
+      'ColdBoot: an offline field kit for iOS and Android. "Built for zero ' +
+      'bars." beside the ColdBoot home screen on a phone.',
+  },
 } as const;
 
 /**
