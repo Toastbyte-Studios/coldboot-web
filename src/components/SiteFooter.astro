@@ -9,10 +9,21 @@ const releaseUrl = `${SITE.repoUrl}/releases/tag/v${version}`;
 
 <footer class="site-footer wrap">
   <p>
-    ColdBoot is made by <a href={SITE.studio.url}>{SITE.studio.name}</a>
+    ColdBoot is made by{' '}
+    <a href={SITE.studio.url} data-outbound="toastbyte-studio">
+      {SITE.studio.name}
+    </a>
   </p>
   <nav aria-label="Footer">
     <a href="/privacy">Privacy</a>
+    <!--
+      Hidden until the script below confirms consent is being asked for.
+      With PUBLIC_ANALYTICS_REQUIRE_CONSENT=0 there is no choice to revisit,
+      and a button that reopened an empty decision would just be confusing.
+    -->
+    <button type="button" class="linkish" data-consent-reopen hidden>
+      Cookie settings
+    </button>
     <a href={`mailto:${SITE.contactEmail}`}>Contact</a>
     <span>
       © {new Date().getFullYear()} {SITE.studio.legalName}
@@ -20,12 +31,50 @@ const releaseUrl = `${SITE.repoUrl}/releases/tag/v${version}`;
     <a
       class="build"
       href={releaseUrl}
+      data-outbound="github-release"
       aria-label={`Version ${version} release notes`}
     >
       <span class="build-dot" aria-hidden="true"></span>v{version}
     </a>
   </nav>
 </footer>
+
+<script>
+  import {
+    ANALYTICS_EVENTS,
+    getAnalyticsConsentRequirement,
+    trackClientEvent,
+  } from '../lib/analytics-client';
+
+  // Keyed off the attribute rather than an id, so tracking another outbound
+  // link is a markup change, not a script change.
+  for (const link of document.querySelectorAll('a[data-outbound]')) {
+    if (!(link instanceof HTMLAnchorElement)) continue;
+
+    link.addEventListener('click', () => {
+      trackClientEvent(ANALYTICS_EVENTS.outboundLinkClicked, {
+        destination: link.dataset.outbound ?? 'unknown',
+        href: link.href,
+      });
+    });
+  }
+
+  // Withdrawing consent has to be as easy as giving it, so the banner needs a
+  // way back once it has been answered. ConsentBanner.astro listens for
+  // `consent:reopen`.
+  if (getAnalyticsConsentRequirement()) {
+    for (const button of document.querySelectorAll<HTMLButtonElement>(
+      '[data-consent-reopen]',
+    )) {
+      button.hidden = false;
+      button.addEventListener('click', () => {
+        document.dispatchEvent(
+          new CustomEvent('consent:reopen', { detail: { opener: button } }),
+        );
+      });
+    }
+  }
+</script>
 
 <style>
   .site-footer {
@@ -91,6 +140,28 @@ const releaseUrl = `${SITE.repoUrl}/releases/tag/v${version}`;
     .build {
       transition: none;
     }
+  }
+
+  /*
+   * A button, because it opens something rather than navigating. Styled like
+   * the links beside it so the row still reads as one set.
+   */
+  .linkish {
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    color: var(--cb-brand);
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  .linkish:hover {
+    color: var(--cb-text);
+  }
+
+  .linkish[hidden] {
+    display: none;
   }
 
   @media (max-width: 640px) {

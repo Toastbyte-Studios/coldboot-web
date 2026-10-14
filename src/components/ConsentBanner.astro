@@ -1,0 +1,238 @@
+---
+/**
+ * Analytics consent banner. Ported from alley-admin's ConsentBanner.astro.
+ *
+ * Replaces the stock Cloudflare Zaraz consent modal. Requires "Show consent
+ * modal" to be DISABLED in the Zaraz dashboard (Consent settings) while
+ * "Enable Consent Management" stays enabled, otherwise both appear at once.
+ *
+ * Shown only when `readAnalyticsConsent()` returns null, meaning consent is
+ * required and the visitor has not answered. A recorded 'denied' does not
+ * bring it back; the footer's Cookie settings button re-opens it for anyone
+ * who wants to change their mind.
+ *
+ * Accept and Decline are given equal visual weight on purpose, and neither
+ * is amber: amber is for the primary action, and this isn't one. Making
+ * refusal harder than acceptance is the specific pattern regulators have
+ * fined people for, and it is not worth the handful of extra sessions.
+ *
+ * Without JavaScript it never shows, and nothing it governs runs either.
+ */
+---
+
+<section
+  id="consent-banner"
+  class="consent"
+  aria-labelledby="consent-title"
+  aria-describedby="consent-body"
+  hidden
+>
+  <div class="text">
+    <p class="eyebrow">Analytics</p>
+    <h2 id="consent-title">Can we count visits?</h2>
+    <p id="consent-body">
+      We'd like to use Google Analytics to see how people find and use this
+      page. No ads, nothing sold, and your email address is never part of it.
+      Decline and the site works exactly the same.{' '}
+      <a href="/privacy#analytics">Details</a>
+    </p>
+  </div>
+  <div class="actions">
+    <button type="button" data-consent="decline">
+      Decline
+    </button>
+    <button type="button" data-consent="accept">
+      Accept
+    </button>
+  </div>
+</section>
+
+<style>
+  /*
+   * A compact card pinned to the bottom-right corner, over the hero's phone
+   * mockup rather than its waitlist form. On phones it spans the width.
+   */
+  .consent {
+    position: fixed;
+    z-index: 100;
+    right: 1.5rem;
+    bottom: 1.5rem;
+    display: grid;
+    gap: 1.125rem;
+    width: min(26rem, calc(100vw - 3rem));
+    padding: 1.25rem 1.375rem 1.375rem;
+    border: 1px solid var(--cb-border);
+    border-radius: 20px;
+    background: var(--cb-surface);
+    color: var(--cb-text);
+    box-shadow: 0 12px 40px -12px var(--cb-shadow);
+    animation: consent-rise 0.28s ease-out both;
+  }
+
+  /* The display rule above would otherwise override the hidden attribute. */
+  .consent[hidden] {
+    display: none;
+  }
+
+  @keyframes consent-rise {
+    from {
+      opacity: 0;
+      transform: translateY(1rem);
+    }
+  }
+
+  .eyebrow {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--cb-brand);
+  }
+
+  h2 {
+    margin: 0.375rem 0 0.5rem;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.5rem;
+    line-height: 1.05;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  #consent-body {
+    margin: 0;
+    font-size: 0.9375rem;
+    line-height: 1.55;
+    color: var(--cb-muted-ground);
+  }
+
+  .actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+
+  /* One style for both, so neither choice is nudged. */
+  button {
+    height: 2.75rem;
+    padding: 0 1.25rem;
+    border: 1px solid var(--cb-border);
+    border-radius: 12px;
+    background: var(--cb-secondary-container);
+    color: var(--cb-on-secondary-container);
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  button:hover {
+    border-color: var(--cb-brand);
+  }
+
+  @media (max-width: 560px) {
+    .consent {
+      right: 0.75rem;
+      bottom: 0.75rem;
+      width: calc(100vw - 1.5rem);
+      padding: 1.125rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .consent {
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  import {
+    readAnalyticsConsent,
+    setAnalyticsConsent,
+  } from '../lib/analytics-client';
+
+  const banner = document.getElementById('consent-banner');
+
+  if (banner) {
+    // Where focus goes back to when the banner was opened from a button.
+    let returnFocus: HTMLElement | null = null;
+
+    const show = (opener?: HTMLElement) => {
+      banner.hidden = false;
+      if (opener) {
+        returnFocus = opener;
+        banner.querySelector('button')?.focus();
+      }
+    };
+
+    const hide = () => {
+      banner.hidden = true;
+      returnFocus?.focus();
+      returnFocus = null;
+    };
+
+    const choose = (granted: boolean) => {
+      // Writes the `analytics-consent` cookie and calls
+      // `zaraz.consent.setAll`, so the Zaraz tools and the relay endpoint
+      // both act on the same decision.
+      setAnalyticsConsent(granted);
+
+      if (granted) {
+        // Pageview events Zaraz withheld while consent was absent. Without
+        // this the first pageview of the session is lost.
+        try {
+          window.zaraz?.consent?.sendQueuedEvents?.();
+        } catch {
+          // no-op
+        }
+      }
+
+      hide();
+    };
+
+    banner.addEventListener('click', (event) => {
+      const target = (event.target as HTMLElement | null)?.closest<HTMLElement>(
+        '[data-consent]',
+      );
+      if (!target) return;
+      choose(target.dataset.consent === 'accept');
+    });
+
+    // Escape closes a banner opened from Cookie settings without changing
+    // the recorded choice. A first-time banner stays until it's answered.
+    banner.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && returnFocus) hide();
+    });
+
+    // 'not-required' means consent is switched off, so nothing needs asking.
+    // 'granted' and 'denied' are both answered. Only null opens the banner.
+    if (readAnalyticsConsent() === null) {
+      show();
+    }
+
+    // The consent bridge may backfill the `analytics-consent` cookie after
+    // this script has decided to show the banner (a returning visitor whose
+    // Zaraz cookie outlived ours). Close it once Zaraz reports in, if so.
+    const hideIfAnswered = () => {
+      if (!returnFocus && readAnalyticsConsent() !== null) {
+        banner.hidden = true;
+      }
+    };
+    document.addEventListener('zarazConsentAPIReady', hideIfAnswered, {
+      once: true,
+    });
+    document.addEventListener('zarazConsentChoicesUpdated', hideIfAnswered, {
+      once: true,
+    });
+
+    // Lets the footer re-open the banner, so a choice can be withdrawn as
+    // easily as it was given.
+    document.addEventListener('consent:reopen', (event) => {
+      const opener = (event as CustomEvent<{ opener?: HTMLElement }>).detail
+        ?.opener;
+      show(opener);
+    });
+  }
+</script>

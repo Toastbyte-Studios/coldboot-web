@@ -6,7 +6,12 @@ import type { APIRoute } from 'astro';
 export const prerender = false;
 
 const JOINED = '/joined';
-const TRY_AGAIN = '/join-error';
+// The reason only feeds the waitlist_signup_failed analytics event; the page
+// reads the same either way, so it gives a visitor nothing new.
+const TRY_AGAIN = {
+  invalid: '/join-error?reason=invalid_email',
+  server: '/join-error?reason=server_error',
+} as const;
 
 /**
  * Handles a plain HTML form post and answers with a 303 redirect, so it works
@@ -20,13 +25,16 @@ export const POST: APIRoute = async ({ request, redirect }) => {
   try {
     form = await request.formData();
   } catch {
-    return redirect(TRY_AGAIN, 303);
+    return redirect(TRY_AGAIN.server, 303);
   }
 
   const submission = parseSubmission(form);
   if (!submission.ok) {
     // Show bots the success page so they get no signal to adapt to.
-    return redirect(submission.reason === 'bot' ? JOINED : TRY_AGAIN, 303);
+    return redirect(
+      submission.reason === 'bot' ? JOINED : TRY_AGAIN.invalid,
+      303,
+    );
   }
 
   try {
@@ -43,7 +51,7 @@ export const POST: APIRoute = async ({ request, redirect }) => {
       'waitlist insert failed:',
       error instanceof Error ? error.message : error,
     );
-    return redirect(TRY_AGAIN, 303);
+    return redirect(TRY_AGAIN.server, 303);
   }
 
   return redirect(JOINED, 303);

@@ -66,6 +66,28 @@ const honeypotId = `${id}-${HONEYPOT_FIELD}`;
   </p>
 </form>
 
+<script>
+  import {
+    ANALYTICS_EVENTS,
+    markWaitlistSubmitted,
+    trackClientEvent,
+  } from '../lib/analytics-client';
+
+  // `submit` only fires once the browser's own validation has passed, so this
+  // counts real attempts. The form still posts normally; nothing here waits.
+  for (const form of document.querySelectorAll<HTMLFormElement>(
+    'form.waitlist',
+  )) {
+    form.addEventListener('submit', () => {
+      const source = new FormData(form).get('source');
+      const name = typeof source === 'string' ? source : 'unknown';
+      trackClientEvent(ANALYTICS_EVENTS.waitlistSignupStarted, { form: name });
+      // Lets /joined or /join-error count the outcome once, for this tab.
+      markWaitlistSubmitted(name);
+    });
+  }
+</script>
+
 <style>
   .waitlist {
     display: grid;

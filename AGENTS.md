@@ -8,7 +8,9 @@ prelaunch page that collects waitlist emails. The app itself lives in
 same instructions. Edit this file, not the link.
 
 Unlike the app, this site **does** talk to the network: the waitlist form posts
-to a server endpoint. The app's "no network requests" rule does not apply here.
+to a server endpoint, and, with the visitor's consent, analytics reach Google
+Analytics through Cloudflare Zaraz. The app's "no network requests" rule does
+not apply here.
 
 ---
 
@@ -78,9 +80,9 @@ src/
   components/     # Building blocks (SiteHeader, SiteFooter, WaitlistForm, Mark, ...)
   data/           # Copy and content as typed data (modules.ts, site.ts, spotlight.ts)
   layouts/        # Base.astro (<head>, meta, fonts, CSS); Notice.astro (result pages)
-  lib/            # Pure logic, unit tested (waitlist.ts: parsing, validation)
+  lib/            # Logic, unit tested where pure (waitlist.ts, analytics-*.ts)
   pages/          # Routes; files here become URLs
-    api/          # Worker endpoints (subscribe.ts)
+    api/          # Worker endpoints (subscribe.ts, analytics/event.ts)
   styles/
     tokens.css    # ColdBoot brand tokens, copied from ColdBoot (do not edit here)
     global.css    # Site-level tokens, resets and shared utilities
@@ -106,7 +108,9 @@ public/           # Served as-is (favicon)
 - Ship no client JavaScript by default. Prefer HTML and CSS; reach for a
   `<script>` only when there is no non-JS way, and don't add a UI framework
   integration (React etc.) for a single interactive element.
-- The scripted pieces so far: the theme toggle and `FeatureSpotlight.astro`.
+- The scripted pieces so far: the theme toggle, `FeatureSpotlight.astro`,
+  and analytics (the consent banner and the small event scripts listed under
+  Analytics below).
   The spotlight's tabs advance on their own, following the WAI-ARIA
   auto-rotating carousel pattern: a Pause / Play control, rotation stops when
   someone picks a tab or focuses inside it, and it never starts under
@@ -163,6 +167,34 @@ public/           # Served as-is (favicon)
   should stay a thin wrapper around it.
 - Schema changes go in a new numbered file in `migrations/`; never edit one
   that has been applied.
+
+### Analytics
+
+Ported from alley-admin, which shares the stack; toastbyte.studio has the same
+design in React. When the approach changes in one, check the others.
+
+- Google Analytics 4 loads through **Cloudflare Zaraz**, configured in the
+  Cloudflare dashboard for the coldboot.app zone, not in this repo. Zaraz
+  injects its script into every HTML response and fires the page views itself,
+  so there is no `page_view` event in code.
+- Events are listed in `src/lib/analytics-events.ts` and fired only through
+  `trackClientEvent` in `src/lib/analytics-client.ts`. Every event there must
+  be fired from somewhere and listed in the privacy policy.
+- **Consent is required by default.** `isAnalyticsConsentRequired()` is on
+  unless the build sets `PUBLIC_ANALYTICS_REQUIRE_CONSENT=0`, the opposite of
+  the siblings' opt-in flag, because builds here run in GitHub Actions with
+  no .env (see `.env.example`). Nothing is sent until the visitor accepts.
+- `ConsentBanner.astro` replaces Zaraz's stock modal; the footer's Cookie
+  settings button reopens it. The choice lives in the `analytics-consent`
+  cookie so the relay endpoint can read it. `CONSENT_EXEMPT_EVENTS` is empty
+  and should stay that way.
+- `/api/analytics/event` is a Measurement Protocol fallback for when Zaraz
+  hasn't loaded. Its logic is in `src/lib/analytics-relay.ts` with tests in
+  `test/analytics.test.ts`. It needs the `ANALYTICS_GA4_MEASUREMENT_ID` and
+  `ANALYTICS_GA4_API_SECRET` Worker secrets (`.dev.vars.example`), and
+  answers ok without sending anything until both are set.
+- Never put an email address, or anything derived from one, in an event.
+- To track another outbound link, give it `data-outbound="<destination>"`.
 
 ### Privacy
 

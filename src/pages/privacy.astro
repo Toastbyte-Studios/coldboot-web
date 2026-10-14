@@ -6,6 +6,18 @@
  * waitlist stores (migrations/), add cookies, analytics, a third-party script
  * or anything else stored in the browser, or pick an email provider, update
  * this page and PRIVACY.lastUpdated in src/data/site.ts in the same PR.
+ *
+ * The analytics sections were written against:
+ *
+ *   src/lib/analytics-events.ts       which events are sent, with which params
+ *   src/lib/analytics-consent.ts      the consent cookie and its lifetime
+ *   src/lib/analytics-client.ts       the consent gate, session-storage key
+ *   src/lib/analytics-relay.ts        the fallback and its derived identifier
+ *   src/components/ConsentBanner.astro
+ *
+ * The Zaraz cookie names and lifetimes come from the Cloudflare dashboard
+ * (Zaraz > Google Analytics 4 > Cookies, and Zaraz > Consent), not from this
+ * repository. Re-check them there if the Zaraz configuration changes.
  */
 import SiteFooter from '../components/SiteFooter.astro';
 import SiteHeader from '../components/SiteHeader.astro';
@@ -50,14 +62,18 @@ const mailto = `mailto:${SITE.contactEmail}`;
         <h2 id="short-version">The short version</h2>
         <ul>
           <li>
-            The only personal information we collect is the email address you
-            give us to join the waitlist.
+            The only personal information we ask you for is the email address
+            you give us to join the waitlist.
           </li>
           <li>{WAITLIST_PROMISE.full}</li>
           <li>
             We don't sell it, rent it, or share it for anyone else's marketing.
           </li>
-          <li>This site doesn't use cookies, analytics or ad trackers.</li>
+          <li>
+            If you say yes, we use Google Analytics to count visits and see how
+            the site is used. It stays off until you do, and saying no changes
+            nothing else about the site. There are no ad trackers.
+          </li>
           <li>
             You can unsubscribe or ask us to delete your address at any time.
           </li>
@@ -81,21 +97,113 @@ const mailto = `mailto:${SITE.contactEmail}`;
       <section aria-labelledby="visiting">
         <h2 id="visiting">Visiting the site</h2>
         <p>
-          This site doesn't set cookies and doesn't run analytics, advertising
-          or tracking scripts. Fonts are served from coldboot.app itself, so
-          your browser doesn't contact a font service.
-        </p>
-        <p>
-          If you pick Light or Dark with the theme switch, your browser
-          remembers that choice in its local storage, on your device. It's never
-          sent to us, and picking System clears it.
-        </p>
-        <p>
           Like any website, coldboot.app receives some technical information in
           order to work, such as your IP address and browser type. Our hosting
           provider, Cloudflare, processes it to deliver pages and protect the
           site from abuse. Some of it may appear in operational logs, which we
           use only to keep the site working and secure, not to identify you.
+          This happens for every visitor and is separate from the analytics
+          below.
+        </p>
+        <p>
+          Fonts are served from coldboot.app itself, so your browser doesn't
+          contact a font service. There are no advertising scripts.
+        </p>
+      </section>
+
+      <section aria-labelledby="analytics">
+        <h2 id="analytics">Analytics</h2>
+        <p>
+          The first time you visit, we ask whether we may use analytics. Until
+          you answer, and if you say no, none of what this section describes
+          happens.
+        </p>
+        <p>
+          If you say yes, we use Google Analytics 4 to understand how the site
+          is used. It runs through Cloudflare Zaraz, which serves the analytics
+          script from coldboot.app rather than from a Google domain and passes
+          the data on to Google from Cloudflare's network. Google Analytics
+          records page views, along with the general information it collects
+          about any visit, such as your approximate location, device type and
+          the site that sent you here. We also send these events, and no others:
+        </p>
+        <ul>
+          <li>
+            <strong>waitlist_signup_started</strong>: you submitted a waitlist
+            form, and which one.
+          </li>
+          <li>
+            <strong>waitlist_signup_succeeded</strong>: the signup went through.
+          </li>
+          <li>
+            <strong>waitlist_signup_failed</strong>: it didn't, and whether the
+            address was rejected or something failed on our end.
+          </li>
+          <li>
+            <strong>outbound_link_clicked</strong>: you followed a link to
+            another site, and where it pointed.
+          </li>
+          <li>
+            <strong>theme_toggled</strong>: you picked Light, Dark or System.
+          </li>
+        </ul>
+        <p>
+          <strong>Your email address is never sent to Google Analytics</strong>,
+          in any form. The signup events record that a signup happened and
+          whether it worked, never who it was for. Ad personalization is turned
+          off for the data we send.
+        </p>
+        <p>
+          If the analytics script doesn't load in your browser, for example
+          because it was blocked or was slow, the site sends the same events
+          through our own server instead, and only if you said yes. With no
+          analytics cookie to go on, our server makes a temporary identifier by
+          scrambling your IP address, browser type and language setting
+          together. It isn't stored and isn't linked to anything else. This
+          should be rare, and we'd rather tell you it exists than leave it out.
+        </p>
+      </section>
+
+      <section aria-labelledby="cookies">
+        <h2 id="cookies">Cookies and browser storage</h2>
+        <p>Everything below is set for coldboot.app alone.</p>
+        <ul>
+          <li>
+            <strong>analytics-consent</strong> (cookie, one year) remembers
+            whether you said yes or no to analytics, so we don't ask on every
+            page. It holds that answer and nothing else.
+          </li>
+          <li>
+            <strong>zaraz-consent</strong> (cookie) is Cloudflare Zaraz's own
+            record of the same answer, which it checks before loading analytics.
+          </li>
+          <li>
+            <strong>cfz_google-analytics_v4</strong> (cookie, up to one year)
+            holds the identifier Google Analytics uses to recognise a returning
+            browser. Only set if you said yes.
+          </li>
+          <li>
+            <strong>cfzs_google-analytics_v4</strong> (cookie, deleted when you
+            close your browser) keeps track of your current visit. Only set if
+            you said yes.
+          </li>
+          <li>
+            <strong>coldboot-theme</strong> (local storage) remembers Light or
+            Dark if you pick one with the theme switch. It's never sent to us,
+            and picking System clears it.
+          </li>
+          <li>
+            <strong>coldboot-waitlist-pending</strong> (session storage) is set
+            only if you said yes to analytics and then submit the waitlist form.
+            It holds which form you used, so the next page can record whether
+            the signup worked, and that page deletes it straight away.
+          </li>
+        </ul>
+        <p>
+          You can change your answer at any time with{' '}
+          <strong>Cookie settings</strong> at the bottom of every page. Clearing
+          this site's cookies also resets the identifier Google Analytics uses
+          for you.
         </p>
       </section>
 
@@ -122,7 +230,16 @@ const mailto = `mailto:${SITE.contactEmail}`;
         <ul>
           <li>
             <strong>Cloudflare</strong> hosts this site and the database the
-            waitlist is stored in.
+            waitlist is stored in, and runs Zaraz, which loads our analytics.
+          </li>
+          <li>
+            <strong>Google</strong> receives the analytics described above, if
+            you said yes. It never receives your email address. How Google uses
+            data from sites like ours is explained at{' '}
+            <a href="https://policies.google.com/technologies/partner-sites">
+              policies.google.com/technologies/partner-sites
+            </a>
+            .
           </li>
           <li>
             <strong>An email delivery service</strong> will send our emails. We
@@ -151,6 +268,10 @@ const mailto = `mailto:${SITE.contactEmail}`;
           We keep your email address until you unsubscribe or ask us to delete
           it. When you do, we remove it from our list.
         </p>
+        <p>
+          Google keeps analytics data according to the retention setting on our
+          Google Analytics property. It isn't linked to your email address.
+        </p>
       </section>
 
       <section aria-labelledby="rights">
@@ -167,6 +288,12 @@ const mailto = `mailto:${SITE.contactEmail}`;
           California, the law may give you further rights over your personal
           information. Email us to use any of them and we'll respond within the
           time the law requires.
+        </p>
+        <p>
+          One limitation: analytics data isn't linked to your email address or
+          to an account, so we can't look up which analytics events were yours
+          in order to delete them. Saying no, or clearing this site's cookies,
+          stops any more being collected.
         </p>
       </section>
 
