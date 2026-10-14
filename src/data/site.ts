@@ -19,6 +19,12 @@ export const SITE = {
   },
   contactEmail: 'support@toastbyte.studio',
   /**
+   * Public repo for this site. tag-and-release.yml publishes a GitHub release
+   * named v<version> on every merge to main, so the footer's version links to
+   * `${repoUrl}/releases/tag/v<version>`.
+   */
+  repoUrl: 'https://github.com/Toastbyte-Studios/coldboot-web',
+  /**
    * The link-preview card (og:image) shown when coldboot.app is shared in
    * Messages, Slack, social posts and so on. Without one, Messages falls
    * back to the largest image on the page: the hero's phone screenshot.

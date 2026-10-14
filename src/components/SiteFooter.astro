@@ -1,5 +1,10 @@
 ---
+import { version } from '../../package.json';
 import { SITE } from '../data/site';
+
+// Read at build time, like alley-admin's footer. Every PR bumps the version
+// and every merge to main ships it, so this is the version that's live.
+const releaseUrl = `${SITE.repoUrl}/releases/tag/v${version}`;
 ---
 
 <footer class="site-footer wrap">
@@ -12,6 +17,13 @@ import { SITE } from '../data/site';
     <span>
       © {new Date().getFullYear()} {SITE.studio.legalName}
     </span>
+    <a
+      class="build"
+      href={releaseUrl}
+      aria-label={`Version ${version} release notes`}
+    >
+      <span class="build-dot" aria-hidden="true"></span>v{version}
+    </a>
   </nav>
 </footer>
 
@@ -35,7 +47,50 @@ import { SITE } from '../data/site';
   nav {
     display: flex;
     flex-wrap: wrap;
+    align-items: center;
     gap: 0.75rem 1.75rem;
+  }
+
+  /*
+   * The version as a quiet status readout, in the same mono label voice as
+   * the hero readouts and spotlight cards. The dot is brand blue, not amber:
+   * amber is reserved for the primary action.
+   */
+  .build {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0.625rem;
+    border: 1px solid var(--cb-separator);
+    border-radius: 999px;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.4;
+    color: var(--cb-muted-ground);
+    text-decoration: none;
+    transition:
+      color 0.15s ease,
+      border-color 0.15s ease;
+  }
+
+  .build:hover {
+    color: var(--cb-brand);
+    border-color: var(--cb-brand);
+  }
+
+  .build-dot {
+    width: 0.375rem;
+    height: 0.375rem;
+    border-radius: 50%;
+    background: var(--cb-brand);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .build {
+      transition: none;
+    }
   }
 
   @media (max-width: 640px) {
