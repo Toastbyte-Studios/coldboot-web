@@ -11,16 +11,14 @@
  */
 import { readConsentFromCookieString } from './analytics-consent.ts';
 import {
+  ANALYTICS_EVENTS,
+  ANALYTICS_OUTBOUND_DESTINATIONS,
   isAnalyticsEventName,
   type AnalyticsEventName,
 } from './analytics-events.ts';
+import { WAITLIST_SOURCES } from './waitlist.ts';
 
 export const GA4_ENDPOINT = 'https://www.google-analytics.com/mp/collect';
-
-/** GA4 rejects a whole payload for one bad param, so enforce its limits here. */
-const MAX_PARAMS = 24;
-const MAX_PARAM_NAME_LENGTH = 40;
-const MAX_PARAM_VALUE_LENGTH = 100;
 
 export type RelayRejection = {
   status: 400 | 403 | 415;
@@ -75,32 +73,58 @@ export function parseRelayEvent(body: unknown): RelayEvent | null {
   if (!isAnalyticsEventName(eventName)) {
     return null;
   }
-  return { eventName, params: sanitizeParams(params) };
+  const sanitizedParams = sanitizeParams(eventName, params);
+  if (!sanitizedParams) {
+    return null;
+  }
+  return { eventName, params: sanitizedParams };
 }
 
 /**
- * Keeps primitive params within GA4's limits, turns booleans into 1/0 (the
- * Measurement Protocol has no boolean type) and drops everything else.
+ * Keeps only the known parameters and enum values for each event. This also
+ * prevents arbitrary request data, including email addresses, reaching GA4.
  */
-export function sanitizeParams(raw: unknown): Record<string, string | number> {
+export function sanitizeParams(
+  eventName: AnalyticsEventName,
+  raw: unknown,
+): Record<string, string | number> | null {
   if (typeof raw !== 'object' || raw === null || Array.isArray(raw)) {
-    return {};
+    return null;
   }
 
-  const params: Record<string, string | number> = {};
-  for (const [key, value] of Object.entries(raw)) {
-    if (Object.keys(params).length >= MAX_PARAMS) break;
-    if (key.length === 0 || key.length > MAX_PARAM_NAME_LENGTH) continue;
-
-    if (typeof value === 'string') {
-      params[key] = value.slice(0, MAX_PARAM_VALUE_LENGTH);
-    } else if (typeof value === 'number' && Number.isFinite(value)) {
-      params[key] = value;
-    } else if (typeof value === 'boolean') {
-      params[key] = value ? 1 : 0;
+  const input = raw as Record<string, unknown>;
+  if (
+    eventName === ANALYTICS_EVENTS.waitlistSignupStarted ||
+    eventName === ANALYTICS_EVENTS.waitlistSignupSucceeded
+  ) {
+    return (WAITLIST_SOURCES as readonly unknown[]).includes(input.form)
+      ? { form: input.form as string }
+      : null;
+  }
+  if (eventName === ANALYTICS_EVENTS.waitlistSignupFailed) {
+    if (
+      !(WAITLIST_SOURCES as readonly unknown[]).includes(input.form) ||
+      (input.reason !== 'invalid_email' && input.reason !== 'server_error')
+    ) {
+      return null;
     }
+    return { form: input.form as string, reason: input.reason };
   }
-  return params;
+  if (eventName === ANALYTICS_EVENTS.themeToggled) {
+    return input.theme === 'light' ||
+      input.theme === 'dark' ||
+      input.theme === 'system'
+      ? { theme: input.theme }
+      : null;
+  }
+  if (eventName === ANALYTICS_EVENTS.outboundLinkClicked) {
+    return (ANALYTICS_OUTBOUND_DESTINATIONS as readonly unknown[]).includes(
+      input.destination,
+    )
+      ? { destination: input.destination as string }
+      : null;
+  }
+  return null;
 }
 
 /**

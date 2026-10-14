@@ -52,6 +52,12 @@ export const ANALYTICS_EVENTS = {
   themeToggled: 'theme_toggled',
 } as const;
 
+export const ANALYTICS_OUTBOUND_DESTINATIONS = [
+  'toastbyte-studio',
+  'github-release',
+  'google-policy',
+] as const;
+
 export type AnalyticsEventName =
   (typeof ANALYTICS_EVENTS)[keyof typeof ANALYTICS_EVENTS];
 

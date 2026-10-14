@@ -57,6 +57,7 @@ declare global {
  * studio's zones unchanged. Extend the list rather than editing it.
  */
 const ZARAZ_CONSENT_COOKIES = ['zaraz-consent', 'cf_consent'];
+let pendingConsent: boolean | null = null;
 
 function readConsentCookie(): ConsentValue | null {
   if (typeof document === 'undefined') {
@@ -120,32 +121,17 @@ export function setAnalyticsConsent(granted: boolean) {
     // no-op
   }
 
-  // Zaraz maintains its own consent state for the tools it loads. Without
-  // this it would keep sending to GA4 regardless of the cookie above.
-  try {
-    window.zaraz?.consent?.setAll?.(granted);
-    window.zaraz?.set?.('consent', { analytics: granted, ads: granted });
-  } catch {
-    // no-op
+  if (window.zaraz?.consent?.APIReady) {
+    applyConsentToZaraz(granted);
+  } else {
+    pendingConsent = granted;
   }
 }
 
-/**
- * Copies the current Zaraz consent state into the `analytics-consent` cookie.
- *
- * Deliberately does NOT call `setAnalyticsConsent`: that writes back into
- * Zaraz via `consent.setAll`, and this runs from Zaraz's own change event.
- * Only the cookie is written here.
- *
- * Tries to identify the "Analytics" purpose by name and mirror only that value
- * into the cookie, so other granted purposes don't accidentally enable
- * analytics tracking. Falls back to "any granted purpose" if purpose metadata
- * is unavailable.
- */
-function syncConsentFromZaraz() {
+function readZarazConsent(): boolean | null {
   const getAll = window.zaraz?.consent?.getAll;
   if (typeof getAll !== 'function') {
-    return;
+    return null;
   }
 
   try {
@@ -168,10 +154,52 @@ function syncConsentFromZaraz() {
         })?.id
       : undefined;
 
-    const granted = analyticsPurposeId
-      ? Boolean(all[analyticsPurposeId])
-      : Object.values(all).some(Boolean);
+    if (analyticsPurposeId) {
+      return Boolean(all[analyticsPurposeId]);
+    }
+    const values = Object.values(all);
+    return values.length > 0 ? values.some(Boolean) : null;
+  } catch {
+    return null;
+  }
+}
 
+function applyConsentToZaraz(granted: boolean) {
+  const previous = readZarazConsent();
+  try {
+    window.zaraz?.consent?.setAll?.(granted);
+    window.zaraz?.set?.('consent', { analytics: granted, ads: granted });
+    if (granted && previous !== true) {
+      window.zaraz?.consent?.sendQueuedEvents?.();
+    }
+  } catch {
+    // no-op
+  }
+}
+
+function signalConsentReconciled() {
+  document.dispatchEvent(new Event('zarazConsentReconciled'));
+}
+
+/**
+ * Copies the current Zaraz consent state into the `analytics-consent` cookie.
+ *
+ * Deliberately does NOT call `setAnalyticsConsent`: that writes back into
+ * Zaraz via `consent.setAll`, and this runs from Zaraz's own change event.
+ * Only the cookie is written here.
+ *
+ * Tries to identify the "Analytics" purpose by name and mirror only that value
+ * into the cookie, so other granted purposes don't accidentally enable
+ * analytics tracking. Falls back to "any granted purpose" if purpose metadata
+ * is unavailable.
+ */
+function syncConsentFromZaraz() {
+  const granted = readZarazConsent();
+  if (granted === null) {
+    return;
+  }
+
+  try {
     writeConsentCookie(granted ? 'granted' : 'denied');
   } catch {
     // no-op
@@ -211,15 +239,34 @@ export function initAnalyticsConsentBridge() {
     return;
   }
 
-  // Fired every time the visitor changes their preferences.
-  document.addEventListener('zarazConsentChoicesUpdated', syncConsentFromZaraz);
+  const onChoicesUpdated = () => {
+    syncConsentFromZaraz();
+    signalConsentReconciled();
+  };
+  document.addEventListener('zarazConsentChoicesUpdated', onChoicesUpdated);
+
+  const onReady = () => {
+    if (pendingConsent !== null) {
+      applyConsentToZaraz(pendingConsent);
+      pendingConsent = null;
+    } else if (!isAnalyticsConsentRequired()) {
+      applyConsentToZaraz(true);
+    } else {
+      reconcileExistingConsent();
+      const consent = readConsentCookie();
+      if (consent !== null) {
+        applyConsentToZaraz(consent === 'granted');
+      }
+    }
+    signalConsentReconciled();
+  };
 
   // The Consent API loads asynchronously and its ready event may already have
   // fired by the time this runs, so check the flag as well as listening.
   if (window.zaraz?.consent?.APIReady) {
-    reconcileExistingConsent();
+    onReady();
   } else {
-    document.addEventListener('zarazConsentAPIReady', reconcileExistingConsent);
+    document.addEventListener('zarazConsentAPIReady', onReady, { once: true });
   }
 }
 

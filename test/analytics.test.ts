@@ -109,7 +109,32 @@ describe('parseRelayEvent', () => {
     assert.deepEqual(
       parseRelayEvent({
         eventName: 'theme_toggled',
-        params: { theme: 'dark' },
+        params: { theme: 'dark', email: 'private@example.com' },
+      }),
+      { eventName: 'theme_toggled', params: { theme: 'dark' } },
+    );
+  });
+
+  it('requires event-specific parameters and enum values', () => {
+    for (const body of [
+      { eventName: 'theme_toggled', params: { theme: 'blue' } },
+      { eventName: 'waitlist_signup_started', params: { form: 'unknown' } },
+      {
+        eventName: 'waitlist_signup_failed',
+        params: { form: 'hero', reason: 'email' },
+      },
+      {
+        eventName: 'outbound_link_clicked',
+        params: { destination: 'https://evil.example/?email=a@b.test' },
+      },
+      { eventName: 'theme_toggled', params: [] },
+    ]) {
+      assert.equal(parseRelayEvent(body), null);
+    }
+    assert.deepEqual(
+      parseRelayEvent({
+        eventName: 'theme_toggled',
+        params: { theme: 'dark', form: 'hero' },
       }),
       { eventName: 'theme_toggled', params: { theme: 'dark' } },
     );
@@ -117,38 +142,45 @@ describe('parseRelayEvent', () => {
 });
 
 describe('sanitizeParams', () => {
-  it('keeps primitives, maps booleans and drops the rest', () => {
+  it('keeps only the event parameters with known enum values', () => {
     assert.deepEqual(
-      sanitizeParams({
-        s: 'x',
-        n: 3,
-        t: true,
-        f: false,
-        nan: Number.NaN,
-        o: {},
-        a: [],
-        u: undefined,
-        z: null,
+      sanitizeParams('waitlist_signup_started', {
+        form: 'hero',
+        email: 'private@example.com',
+        extra: true,
       }),
-      { s: 'x', n: 3, t: 1, f: 0 },
+      { form: 'hero' },
     );
-  });
-
-  it('enforces GA4 limits', () => {
-    const many = Object.fromEntries(
-      Array.from({ length: 30 }, (_, i) => [`p${i}`, i]),
-    );
-    assert.equal(Object.keys(sanitizeParams(many)).length, 24);
-    assert.deepEqual(sanitizeParams({ ['k'.repeat(41)]: 1 }), {});
     assert.equal(
-      (sanitizeParams({ v: 'v'.repeat(150) }).v as string).length,
-      100,
+      sanitizeParams('waitlist_signup_succeeded', { form: 'retry' })?.form,
+      'retry',
     );
+    assert.deepEqual(
+      sanitizeParams('waitlist_signup_failed', {
+        form: 'closing',
+        reason: 'server_error',
+      }),
+      { form: 'closing', reason: 'server_error' },
+    );
+    assert.deepEqual(
+      sanitizeParams('outbound_link_clicked', {
+        destination: 'google-policy',
+      }),
+      { destination: 'google-policy' },
+    );
+    assert.deepEqual(sanitizeParams('theme_toggled', { theme: 'system' }), {
+      theme: 'system',
+    });
   });
 
-  it('ignores non-object input', () => {
-    assert.deepEqual(sanitizeParams('x'), {});
-    assert.deepEqual(sanitizeParams([1, 2]), {});
+  it('rejects malformed parameter objects and invalid required values', () => {
+    assert.equal(sanitizeParams('theme_toggled', 'x'), null);
+    assert.equal(sanitizeParams('theme_toggled', [1, 2]), null);
+    assert.equal(sanitizeParams('theme_toggled', { theme: true }), null);
+    assert.equal(
+      sanitizeParams('waitlist_signup_succeeded', { form: 'untrusted' }),
+      null,
+    );
   });
 });
 

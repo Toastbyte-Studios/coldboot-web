@@ -54,7 +54,6 @@ const releaseUrl = `${SITE.repoUrl}/releases/tag/v${version}`;
     link.addEventListener('click', () => {
       trackClientEvent(ANALYTICS_EVENTS.outboundLinkClicked, {
         destination: link.dataset.outbound ?? 'unknown',
-        href: link.href,
       });
     });
   }

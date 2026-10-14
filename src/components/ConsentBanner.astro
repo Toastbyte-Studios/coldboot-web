@@ -179,16 +179,6 @@
       // both act on the same decision.
       setAnalyticsConsent(granted);
 
-      if (granted) {
-        // Pageview events Zaraz withheld while consent was absent. Without
-        // this the first pageview of the session is lost.
-        try {
-          window.zaraz?.consent?.sendQueuedEvents?.();
-        } catch {
-          // no-op
-        }
-      }
-
       hide();
     };
 
@@ -212,18 +202,14 @@
       show();
     }
 
-    // The consent bridge may backfill the `analytics-consent` cookie after
-    // this script has decided to show the banner (a returning visitor whose
-    // Zaraz cookie outlived ours). Close it once Zaraz reports in, if so.
+    // The consent bridge signals only after it has finished reconciling its
+    // choice with the local cookie.
     const hideIfAnswered = () => {
       if (!returnFocus && readAnalyticsConsent() !== null) {
         banner.hidden = true;
       }
     };
-    document.addEventListener('zarazConsentAPIReady', hideIfAnswered, {
-      once: true,
-    });
-    document.addEventListener('zarazConsentChoicesUpdated', hideIfAnswered, {
+    document.addEventListener('zarazConsentReconciled', hideIfAnswered, {
       once: true,
     });
 

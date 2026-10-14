@@ -134,10 +134,12 @@ const mailto = `mailto:${SITE.contactEmail}`;
           </li>
           <li>
             <strong>waitlist_signup_succeeded</strong>: the signup went through.
+            The <code>form</code> parameter identifies which form you used.
           </li>
           <li>
             <strong>waitlist_signup_failed</strong>: it didn't, and whether the
-            address was rejected or something failed on our end.
+            address was rejected or something failed on our end, and which form
+            you used in the <code>form</code> parameter.
           </li>
           <li>
             <strong>outbound_link_clicked</strong>: you followed a link to
@@ -159,8 +161,10 @@ const mailto = `mailto:${SITE.contactEmail}`;
           through our own server instead, and only if you said yes. With no
           analytics cookie to go on, our server makes a temporary identifier by
           scrambling your IP address, browser type and language setting
-          together. It isn't stored and isn't linked to anything else. This
-          should be rare, and we'd rather tell you it exists than leave it out.
+          together. We don't store that identifier separately, but Google
+          receives and retains it with the analytics data. It isn't linked to
+          your email address or an account. This should be rare, and we'd rather
+          tell you it exists than leave it out.
         </p>
       </section>
 
@@ -201,9 +205,9 @@ const mailto = `mailto:${SITE.contactEmail}`;
         </ul>
         <p>
           You can change your answer at any time with{' '}
-          <strong>Cookie settings</strong> at the bottom of every page. Clearing
-          this site's cookies also resets the identifier Google Analytics uses
-          for you.
+          <strong>Cookie settings</strong> at the bottom of every page that asks
+          for consent. Clearing this site's cookies also resets the identifier
+          Google Analytics uses for you.
         </p>
       </section>
 
@@ -236,7 +240,10 @@ const mailto = `mailto:${SITE.contactEmail}`;
             <strong>Google</strong> receives the analytics described above, if
             you said yes. It never receives your email address. How Google uses
             data from sites like ours is explained at{' '}
-            <a href="https://policies.google.com/technologies/partner-sites">
+            <a
+              href="https://policies.google.com/technologies/partner-sites"
+              data-outbound="google-policy"
+            >
               policies.google.com/technologies/partner-sites
             </a>
             .
