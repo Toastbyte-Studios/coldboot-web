@@ -3,12 +3,34 @@
  * updating it doesn't mean hunting through markup.
  */
 export const SITE = {
+  /**
+   * One word, capital C and B, everywhere: "cold boot" on its own is a
+   * computing term that owns its search results, so the brand only stands
+   * out spelled as one distinctive name. toastbyte.studio should match.
+   */
   name: 'ColdBoot',
-  title: 'ColdBoot — offline survival tools for your phone',
+  /**
+   * The <title> and share title. Leads with the name, then the search phrase
+   * people use for this kind of app ("offline survival app"), and says
+   * "iPhone" because that's how people search for iOS apps. Keep it under
+   * ~60 characters so Google shows it whole.
+   */
+  title: 'ColdBoot: Offline Survival App for iPhone & Android',
+  /**
+   * Meta description. Google shows about 155 characters, so keep it under
+   * that (151 now) and lead with what the app is. "Built for no signal"
+   * rather than "works with no signal": maps need one download first.
+   */
   description:
-    'ColdBoot is an offline-first field kit for iOS and Android: maps, ' +
-    'compass, Morse, sun times, pantry tracking and a survival library, ' +
-    'built to work without a connection. Join the waitlist.',
+    'ColdBoot is an offline survival app for iPhone and Android. Maps, ' +
+    'compass, Morse, sun times, pantry tracking and a survival guide, built ' +
+    'for no signal.',
+  /**
+   * The first line of the home page's <h1>, above the "Built for zero bars."
+   * slogan. It's the one heading that says in words what ColdBoot is, so it
+   * carries the name and the main search phrase.
+   */
+  headline: 'ColdBoot, the offline survival app',
   // The announced launch window. Update it here if the date moves.
   launchLabel: 'Launching early 2027',
   platforms: 'iOS + Android',
@@ -16,6 +38,8 @@ export const SITE = {
     name: 'Toastbyte Studios',
     legalName: 'Toastbyte Studios, LLC',
     url: 'https://toastbyte.studio/',
+    // The studio's other profile, for the Organization structured data.
+    github: 'https://github.com/Toastbyte-Studios',
   },
   contactEmail: 'support@toastbyte.studio',
   /**

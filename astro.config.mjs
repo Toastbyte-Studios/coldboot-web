@@ -1,6 +1,11 @@
 // @ts-check
 import cloudflare from '@astrojs/cloudflare';
+import sitemap from '@astrojs/sitemap';
 import { defineConfig, fontProviders } from 'astro/config';
+
+// Utility pages that carry noindex (form results, the 404). A sitemap lists
+// pages we want indexed, so listing these would contradict their own tags.
+const NOT_IN_SITEMAP = ['/joined', '/join-error', '/404'];
 
 // https://astro.build/config
 export default defineConfig({
@@ -23,6 +28,14 @@ export default defineConfig({
   // otherwise. Nothing here needs server-side sessions, so don't provision a
   // KV namespace that nothing reads.
   session: false,
+  // Writes sitemap-index.xml and sitemap-0.xml at build time from the
+  // prerendered pages; robots.txt points crawlers at the index.
+  integrations: [
+    sitemap({
+      filter: (page) =>
+        !NOT_IN_SITEMAP.includes(new URL(page).pathname.replace(/\/$/, '')),
+    }),
+  ],
   // Fonts are downloaded from Google at build time and served from our own
   // domain, so visitors' browsers never contact Google. Astro also generates
   // metric-matched fallbacks to limit layout shift while they load.

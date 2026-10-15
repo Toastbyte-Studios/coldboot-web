@@ -1,0 +1,16 @@
+# robots.txt for coldboot.app
+#
+# Every crawler may read every page, search engines and AI assistants alike:
+# the site exists to be found. The one group below applies to all of them;
+# naming bots individually would grant nothing more.
+#
+# Cloudflare can prepend its own managed rules (the "content signals" block)
+# and can block AI crawlers at the edge. Those are set in the Cloudflare
+# dashboard, not here, and they win over this file.
+
+User-agent: *
+Allow: /
+# POST-only Worker endpoints; nothing to index.
+Disallow: /api/
+
+Sitemap: https://coldboot.app/sitemap-index.xml

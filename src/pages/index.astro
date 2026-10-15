@@ -9,6 +9,18 @@ import WaitlistForm from '../components/WaitlistForm.astro';
 import { MODULES } from '../data/modules';
 import { READOUTS, SITE } from '../data/site';
 import Base from '../layouts/Base.astro';
+import { buildHomeStructuredData } from '../lib/structured-data';
+
+const structuredData = buildHomeStructuredData({
+  site: Astro.site!,
+  name: SITE.name,
+  description: SITE.description,
+  image: new URL(SITE.shareImage.path, Astro.site),
+  studio: SITE.studio,
+  contactEmail: SITE.contactEmail,
+  features: MODULES.flatMap((m) => m.tools),
+  studioSameAs: [SITE.studio.github],
+});
 
 // The same closed contour, stepped down in scale and rotated, reads as a
 // topographic map behind the hero.
@@ -23,7 +35,11 @@ const CONTOUR_STEPS = [
 ];
 ---
 
-<Base title={SITE.title} description={SITE.description}>
+<Base
+  title={SITE.title}
+  description={SITE.description}
+  structuredData={structuredData}
+>
   <SiteHeader />
 
   <main>
@@ -48,12 +64,22 @@ const CONTOUR_STEPS = [
         <div class="hero-copy">
           <p class="eyebrow">
             <span class="dot" aria-hidden="true"></span>
-            Offline field kit · {SITE.platforms} · {SITE.launchLabel}
+            {SITE.platforms} · {SITE.launchLabel}
           </p>
+          <!--
+            The first line is for search: it's the only heading text that says
+            what ColdBoot is. The slogan stays the big visual headline. The
+            hidden colon keeps the heading reading as one sentence to crawlers
+            and screen readers: "ColdBoot, the offline survival app: Built for
+            zero bars."
+          -->
           <h1 id="hero-heading">
-            Built for
-            <br />
-            <span class="soft">zero bars.</span>
+            <span class="h1-name">{SITE.headline}</span>
+            <span class="visually-hidden">: </span>
+            <span class="h1-slogan">
+              Built for <br />
+              <span class="soft">zero bars.</span>
+            </span>
           </h1>
           <p class="lede">
             ColdBoot turns your phone into a field kit. Maps, compass, Morse,
@@ -84,8 +110,7 @@ const CONTOUR_STEPS = [
     <section class="wrap modules" aria-labelledby="modules-heading">
       <p class="eyebrow">Six modules · one kit</p>
       <h2 id="modules-heading">
-        Everything you'd pack,
-        <br />
+        Everything you'd pack, <br />
         none of the weight.
       </h2>
       <p class="section-lede">
@@ -105,8 +130,7 @@ const CONTOUR_STEPS = [
     <section class="wrap closing" aria-labelledby="closing-heading">
       <Mark size={72} />
       <h2 id="closing-heading">
-        When the network goes down,
-        <br />
+        When the network goes down, <br />
         <span class="soft">ColdBoot boots up.</span>
       </h2>
       <WaitlistForm id="closing" centered />
@@ -188,7 +212,21 @@ const CONTOUR_STEPS = [
   }
 
   h1 {
-    margin-top: 1.75rem;
+    margin-top: 1.25rem;
+  }
+
+  .h1-name {
+    display: block;
+    font-size: clamp(1.5rem, 2.6vw, 2rem);
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: 0.02em;
+    color: var(--cb-text);
+  }
+
+  .h1-slogan {
+    display: block;
+    margin-top: 0.875rem;
     font-size: clamp(4.5rem, 9vw, 7rem);
     line-height: 0.9;
   }
