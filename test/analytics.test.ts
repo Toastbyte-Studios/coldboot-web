@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import {
+  findAnalyticsPurposeId,
   isAnalyticsConsentRequired,
   readConsentFromCookieString,
 } from '../src/lib/analytics-consent.ts';
@@ -18,6 +19,42 @@ import {
 describe('isAnalyticsConsentRequired', () => {
   it('fails closed when the build variable is unset', () => {
     assert.equal(isAnalyticsConsentRequired(), true);
+  });
+});
+
+describe('findAnalyticsPurposeId', () => {
+  it('returns the key of the Analytics purpose, as Zaraz serves it', () => {
+    // Captured from zaraz.consent.purposes on coldboot.app, 2026-10-14.
+    const purposes = {
+      GfAD: {
+        description: {
+          en: 'Counting visits and how the site is used, with Google Analytics.',
+        },
+        name: { en: 'Analytics' },
+        order: 0,
+      },
+    };
+    assert.equal(findAnalyticsPurposeId(purposes), 'GfAD');
+  });
+
+  it('picks Analytics out of several purposes', () => {
+    const purposes = {
+      Ab12: { name: { en: 'Advertising' } },
+      Cd34: { name: 'Analytics' },
+    };
+    assert.equal(findAnalyticsPurposeId(purposes), 'Cd34');
+  });
+
+  it('returns undefined when there is no Analytics purpose', () => {
+    for (const purposes of [
+      undefined,
+      null,
+      {},
+      { Ab12: { name: { en: 'Advertising' } } },
+      { Ab12: null },
+    ]) {
+      assert.equal(findAnalyticsPurposeId(purposes), undefined);
+    }
   });
 });
 
