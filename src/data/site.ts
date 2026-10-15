@@ -43,6 +43,15 @@ export const SITE = {
   },
   contactEmail: 'support@toastbyte.studio',
   /**
+   * Search-engine ownership tokens, emitted as <meta> tags in every page's
+   * <head> by Base.astro. Keep them after verification succeeds: Bing
+   * re-checks, and removing the tag un-verifies the site.
+   */
+  verification: {
+    // Bing Webmaster Tools, HTML meta tag method.
+    bing: 'C03A0EB81C06CD60946A9B15222A7210',
+  },
+  /**
    * Public repo for this site. tag-and-release.yml publishes a GitHub release
    * named v<version> on every merge to main, so the footer's version links to
    * `${repoUrl}/releases/tag/v<version>`.
