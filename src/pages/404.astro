@@ -1,0 +1,19 @@
+---
+/**
+ * Served with a 404 status for any path that doesn't exist, in place of
+ * Astro's bare default. Notice adds noindex, and the page is left out of the
+ * sitemap (astro.config.mjs).
+ */
+import Notice from '../layouts/Notice.astro';
+---
+
+<Notice title="Page not found" heading="Off the map.">
+  <p>
+    There's nothing at this address. It may have moved, or the link may be
+    mistyped.
+  </p>
+  <p>
+    <a href="/">Back to coldboot.app</a> ·{' '}
+    <a href="/#waitlist">Join the waitlist</a>
+  </p>
+</Notice>
