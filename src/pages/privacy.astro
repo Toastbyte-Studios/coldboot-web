@@ -200,6 +200,11 @@ const mailto = `mailto:${SITE.contactEmail}`;
             record of the same answer, which it checks before loading analytics.
           </li>
           <li>
+            <strong>_zaraz_consent</strong> (local storage) is another copy
+            Zaraz keeps of that answer, as yes or no for analytics and for ads.
+            We don't run ads, so the ads value is always no.
+          </li>
+          <li>
             <strong>cfz_google-analytics_v4</strong> (cookie, up to one year)
             holds the identifier Google Analytics uses to recognise a returning
             browser. Only set if you said yes.
