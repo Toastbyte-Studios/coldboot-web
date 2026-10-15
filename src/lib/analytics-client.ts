@@ -2,6 +2,7 @@ import {
   ANALYTICS_CONSENT_COOKIE,
   ANALYTICS_CONSENT_MAX_AGE_SECONDS,
   CONSENT_EXEMPT_EVENTS,
+  findAnalyticsPurposeId,
   isAnalyticsConsentRequired,
   readConsentFromCookieString,
   type ConsentState,
@@ -29,6 +30,7 @@ declare global {
       track?: (eventName: string, params?: Record<string, unknown>) => void;
       consent?: {
         APIReady?: boolean;
+        set?: (preferences: Record<string, boolean>) => void;
         setAll?: (value: boolean) => void;
         getAll?: () => Record<string, boolean>;
         // Delivers Pageview events Zaraz withheld while consent was absent.
@@ -136,24 +138,13 @@ function readZarazConsent(): boolean | null {
 
   try {
     const all = getAll();
-    const consent = window.zaraz?.consent as
-      | { purposes?: Record<string, { id?: string; name?: unknown }> }
-      | undefined;
-    const purposes = consent?.purposes;
+    const analyticsPurposeId = findAnalyticsPurposeId(
+      (window.zaraz?.consent as { purposes?: unknown } | undefined)?.purposes,
+    );
 
-    const analyticsPurposeId = purposes
-      ? Object.values(purposes).find((p) => {
-          const name = p?.name;
-          if (typeof name === 'string') return name === 'Analytics';
-          if (name && typeof name === 'object') {
-            return Object.values(name as Record<string, unknown>).includes(
-              'Analytics',
-            );
-          }
-          return false;
-        })?.id
-      : undefined;
-
+    // Only the Analytics purpose decides analytics, so a granted purpose for
+    // something else (ads, say) can never switch GA4 on. The fallback below
+    // is for a zone where the purpose list can't be read at all.
     if (analyticsPurposeId) {
       return Boolean(all[analyticsPurposeId]);
     }
@@ -164,11 +155,25 @@ function readZarazConsent(): boolean | null {
   }
 }
 
+/**
+ * Records the banner's answer in Zaraz. The banner only asks about analytics,
+ * so only the Analytics purpose is set when it can be found; `setAll` is the
+ * fallback for a zone whose purpose list can't be read. Ads are never granted
+ * from here: there's nothing to ask about them, and no ad tools.
+ */
 function applyConsentToZaraz(granted: boolean) {
   const previous = readZarazConsent();
   try {
-    window.zaraz?.consent?.setAll?.(granted);
-    window.zaraz?.set?.('consent', { analytics: granted, ads: granted });
+    const consent = window.zaraz?.consent;
+    const purposeId = findAnalyticsPurposeId(
+      (consent as { purposes?: unknown } | undefined)?.purposes,
+    );
+    if (purposeId && typeof consent?.set === 'function') {
+      consent.set({ [purposeId]: granted });
+    } else {
+      consent?.setAll?.(granted);
+    }
+    window.zaraz?.set?.('consent', { analytics: granted, ads: false });
     if (granted && previous !== true) {
       window.zaraz?.consent?.sendQueuedEvents?.();
     }

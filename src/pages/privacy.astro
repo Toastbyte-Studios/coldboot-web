@@ -18,6 +18,10 @@
  * The Zaraz cookie names and lifetimes come from the Cloudflare dashboard
  * (Zaraz > Google Analytics 4 > Cookies, and Zaraz > Consent), not from this
  * repository. Re-check them there if the Zaraz configuration changes.
+ *
+ * Cloudflare Web Analytics (the /cdn-cgi/rum beacon) is also switched on in
+ * the dashboard, not in code, and runs regardless of consent. If it's turned
+ * off for the zone, remove it from "Visiting the site" and the summary.
  */
 import SiteFooter from '../components/SiteFooter.astro';
 import SiteHeader from '../components/SiteHeader.astro';
@@ -75,6 +79,10 @@ const mailto = `mailto:${SITE.contactEmail}`;
             nothing else about the site. There are no ad trackers.
           </li>
           <li>
+            For every visitor, our host also counts page loads and measures how
+            fast pages load. That uses no cookies and doesn't identify you.
+          </li>
+          <li>
             You can unsubscribe or ask us to delete your address at any time.
           </li>
         </ul>
@@ -104,6 +112,16 @@ const mailto = `mailto:${SITE.contactEmail}`;
           use only to keep the site working and secure, not to identify you.
           This happens for every visitor and is separate from the analytics
           below.
+        </p>
+        <p>
+          We also use Cloudflare Web Analytics, which runs for every visitor
+          whatever you answer about Google Analytics. A small script reports
+          which page you opened, the site that sent you here, and how quickly
+          the page loaded, so we can count visits and keep the site fast. It
+          doesn't set cookies or store anything in your browser, doesn't
+          fingerprint you, and Cloudflare discards your IP address rather than
+          storing it with this data. It isn't linked to Google Analytics or to
+          your email address.
         </p>
         <p>
           Fonts are served from coldboot.app itself, so your browser doesn't
@@ -234,7 +252,8 @@ const mailto = `mailto:${SITE.contactEmail}`;
         <ul>
           <li>
             <strong>Cloudflare</strong> hosts this site and the database the
-            waitlist is stored in, and runs Zaraz, which loads our analytics.
+            waitlist is stored in, runs Zaraz, which loads our analytics, and
+            provides Web Analytics.
           </li>
           <li>
             <strong>Google</strong> receives the analytics described above, if
