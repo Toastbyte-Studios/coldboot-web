@@ -1,5 +1,6 @@
 ---
 import { version } from '../../package.json';
+import { GUIDES } from '../data/guides';
 import { SITE } from '../data/site';
 
 // Read at build time, like alley-admin's footer. Every PR bumps the version
@@ -8,6 +9,22 @@ const releaseUrl = `${SITE.repoUrl}/releases/tag/v${version}`;
 ---
 
 <footer class="site-footer wrap">
+  <!--
+    Every page links every guide, so crawlers find them from anywhere and
+    each guide gets links from the whole site, not just the home page.
+  -->
+  <nav class="guides" aria-labelledby="footer-guides">
+    <span id="footer-guides" class="guides-label">
+      Field references
+    </span>
+    <ul>
+      {GUIDES.map((g) => (
+        <li>
+          <a href={g.path}>{g.name}</a>
+        </li>
+      ))}
+    </ul>
+  </nav>
   <p>
     ColdBoot is made by{' '}
     <a href={SITE.studio.url} data-outbound="toastbyte-studio">
@@ -90,6 +107,32 @@ const releaseUrl = `${SITE.repoUrl}/releases/tag/v${version}`;
 
   p {
     margin: 0;
+  }
+
+  .guides {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.5rem 1.25rem;
+    flex-basis: 100%;
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid var(--cb-separator);
+  }
+
+  .guides-label {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  .guides ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
   }
 
   nav {

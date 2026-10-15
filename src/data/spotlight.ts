@@ -18,6 +18,8 @@ export interface SpotlightFeature {
   eyebrow: string;
   heading: string;
   body: string;
+  /** A guide page that goes deeper, linked under the feature's copy. */
+  guide?: { href: string; label: string };
 }
 
 export const SPOTLIGHT = {
@@ -42,6 +44,7 @@ export const SPOTLIGHT_FEATURES: readonly SpotlightFeature[] = [
       'an optional tone. Tap in dots and dashes to decode a reply, and train ' +
       'your ear with a trainer that plays Morse for you to name, from single ' +
       'letters up to full sentences.',
+    guide: { href: '/morse-code', label: 'See the full Morse code chart' },
   },
   {
     // src/data/{health,emergency,tools,weather,survival}.json: 99 entries,

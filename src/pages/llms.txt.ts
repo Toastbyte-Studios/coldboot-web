@@ -6,6 +6,7 @@
  * can't say anything the site doesn't: the claims in src/data/ have already
  * been checked against the app. Add facts there, not here.
  */
+import { GUIDES } from '../data/guides';
 import { MODULES } from '../data/modules';
 import { READOUTS, SITE, WAITLIST_PROMISE } from '../data/site';
 import { SPOTLIGHT_FEATURES } from '../data/spotlight';
@@ -47,6 +48,7 @@ export const GET: APIRoute = ({ site }) => {
     '## Links',
     '',
     `- [${SITE.name}](${home}): home page and waitlist`,
+    ...GUIDES.map((g) => `- [${g.name}](${link(g.path)}): ${g.description}`),
     `- [Privacy policy](${link('/privacy')}): what the website collects`,
     `- [${SITE.studio.name}](${SITE.studio.url}): the studio behind ${SITE.name}`,
     `- Contact: ${SITE.contactEmail}`,

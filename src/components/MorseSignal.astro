@@ -1,0 +1,68 @@
+---
+/**
+ * A Morse pattern drawn as dots and dashes, e.g. `.-` for A. Decorative:
+ * the spoken spell-out ("dot dash") printed beside it is what screen readers
+ * and crawlers read, so this is hidden from both.
+ *
+ * Dashes are three dots long, the same 1:3 ratio as the signal itself.
+ */
+interface Props {
+  morse: string;
+  size?: 'md' | 'lg';
+}
+
+const { morse, size = 'md' } = Astro.props;
+---
+
+<span class:list={['signal', size]} aria-hidden="true">
+  {[...morse].map((symbol) =>
+    symbol === ' ' ? (
+      <span class="gap" />
+    ) : (
+      <span class={symbol === '-' ? 'dash' : 'dot'} />
+    ),
+  )}
+</span>
+
+<style>
+  .signal {
+    --u: 0.4375rem;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--u);
+    min-height: calc(var(--u) * 2);
+  }
+
+  .lg {
+    --u: 0.75rem;
+  }
+
+  .dot,
+  .dash {
+    height: var(--u);
+    border-radius: 999px;
+    background: currentColor;
+  }
+
+  .dot {
+    width: var(--u);
+  }
+
+  .dash {
+    width: calc(var(--u) * 3);
+  }
+
+  /* A letter gap is three units; the flex gap already supplies two. */
+  .gap {
+    width: var(--u);
+  }
+
+  @media print {
+    .dot,
+    .dash {
+      /* Backgrounds are often dropped when printing; borders aren't. */
+      background: none;
+      border: calc(var(--u) / 2) solid currentColor;
+    }
+  }
+</style>
