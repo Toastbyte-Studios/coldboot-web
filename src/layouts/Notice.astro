@@ -21,8 +21,27 @@ const { title, heading } = Astro.props;
     </a>
     <h1>{heading}</h1>
     <slot />
+    <button type="button" class="cookie-settings" data-consent-reopen hidden>
+      Cookie settings
+    </button>
   </main>
 </Base>
+
+<script>
+  import { getAnalyticsConsentRequirement } from '../lib/analytics-client';
+
+  const button = document.querySelector<HTMLButtonElement>(
+    '[data-consent-reopen]',
+  );
+  if (button && getAnalyticsConsentRequirement()) {
+    button.hidden = false;
+    button.addEventListener('click', () => {
+      document.dispatchEvent(
+        new CustomEvent('consent:reopen', { detail: { opener: button } }),
+      );
+    });
+  }
+</script>
 
 <style>
   .notice {
@@ -57,5 +76,15 @@ const { title, heading } = Astro.props;
   .notice :global(.waitlist) {
     width: 100%;
     margin-top: 1rem;
+  }
+
+  .cookie-settings {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--cb-brand);
+    font: inherit;
+    text-decoration: underline;
+    cursor: pointer;
   }
 </style>

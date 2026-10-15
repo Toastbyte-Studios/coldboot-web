@@ -37,6 +37,21 @@ const OPTIONS = [
   ))}
 </fieldset>
 
+<script>
+  import { ANALYTICS_EVENTS, trackClientEvent } from '../lib/analytics-client';
+
+  // Only counts the choice. Applying and saving it is the inline script in
+  // Base.astro, which has to run before first paint and so can't be bundled.
+  for (const toggle of document.querySelectorAll('[data-theme-toggle]')) {
+    toggle.addEventListener('change', (event) => {
+      const input = event.target;
+      if (input instanceof HTMLInputElement) {
+        trackClientEvent(ANALYTICS_EVENTS.themeToggled, { theme: input.value });
+      }
+    });
+  }
+</script>
+
 <style>
   .theme-toggle {
     display: inline-flex;

@@ -1,0 +1,18 @@
+# Worker secrets for local development (`npm run preview` / `wrangler dev`).
+# Copy to .dev.vars, which is gitignored. In production, set each one with
+# `npx wrangler secret put <NAME>`; never put them in wrangler.jsonc.
+
+# ── Analytics relay (src/pages/api/analytics/event.ts) ──────────────────
+# Used only when Zaraz hasn't loaded in a visitor's browser: the endpoint
+# then sends the event to GA4 through the Measurement Protocol. Until both are
+# set it answers { ok: true, delivered: false } and sends nothing, which is
+# the intended state before GA4 is provisioned.
+#
+# The measurement ID is coldboot.app's GA4 web stream, the same one set on the
+# GA4 tool in Zaraz (Cloudflare dashboard > Tag Management > Zaraz). It isn't
+# a credential; it's a Worker secret only so the two values live together.
+# The API secret is NOT the gtag snippet: create one under GA4 Admin > Data
+# streams > (stream) > Measurement Protocol API secrets. That one is a
+# credential, so never commit it.
+ANALYTICS_GA4_MEASUREMENT_ID=G-LXP5YLGBF9
+ANALYTICS_GA4_API_SECRET=

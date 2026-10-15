@@ -9,3 +9,19 @@ import Notice from '../layouts/Notice.astro';
     <a href="/">Back to coldboot.app</a> · <a href="/privacy">Privacy policy</a>
   </p>
 </Notice>
+
+<script>
+  import {
+    ANALYTICS_EVENTS,
+    takeWaitlistSubmission,
+    trackClientEvent,
+  } from '../lib/analytics-client';
+
+  // Only when this tab just submitted, so a reload or a direct visit isn't
+  // counted. Bots that tripped the honeypot land here too, but they don't run
+  // the form's script, so they don't count either.
+  const form = takeWaitlistSubmission();
+  if (form) {
+    trackClientEvent(ANALYTICS_EVENTS.waitlistSignupSucceeded, { form });
+  }
+</script>

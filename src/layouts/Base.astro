@@ -1,5 +1,6 @@
 ---
 import { Font } from 'astro:assets';
+import ConsentBanner from '../components/ConsentBanner.astro';
 import { SITE } from '../data/site';
 import '../styles/global.css';
 
@@ -139,5 +140,27 @@ const shareImage = new URL(SITE.shareImage.path, Astro.site);
   </head>
   <body>
     <slot />
+
+    <!--
+      Replaces the stock Zaraz consent modal. "Show consent modal" must be
+      disabled in the Zaraz dashboard or both will appear at once.
+    -->
+    <ConsentBanner />
+
+    <!--
+      Keeps the `analytics-consent` cookie in step with Zaraz's own consent
+      state, so the relay endpoint (/api/analytics/event) honours the same
+      choice. Zaraz only gates the tools it loads itself, and cannot see that
+      endpoint. Still needed alongside the banner: the banner covers choices
+      made in it, this covers a cleared cookie or a choice made any other way.
+
+      Bundled and deferred by Astro. It attaches listeners rather than reading
+      consent at parse time, so its order relative to Zaraz doesn't matter.
+    -->
+    <script>
+      import { initAnalyticsConsentBridge } from '../lib/analytics-client';
+
+      initAnalyticsConsentBridge();
+    </script>
   </body>
 </html>
