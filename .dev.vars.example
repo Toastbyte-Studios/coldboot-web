@@ -8,9 +8,11 @@
 # set it answers { ok: true, delivered: false } and sends nothing, which is
 # the intended state before GA4 is provisioned.
 #
-# The measurement ID is the same one configured on the GA4 tool in Zaraz
-# (Cloudflare dashboard > coldboot.app > Zaraz). The API secret is NOT the
-# gtag snippet: create one under GA4 Admin > Data streams > (stream) >
-# Measurement Protocol API secrets. It's a credential, so it's a secret.
-ANALYTICS_GA4_MEASUREMENT_ID=G-XXXXXXXXXX
+# The measurement ID is coldboot.app's GA4 web stream, the same one set on the
+# GA4 tool in Zaraz (Cloudflare dashboard > Tag Management > Zaraz). It isn't
+# a credential; it's a Worker secret only so the two values live together.
+# The API secret is NOT the gtag snippet: create one under GA4 Admin > Data
+# streams > (stream) > Measurement Protocol API secrets. That one is a
+# credential, so never commit it.
+ANALYTICS_GA4_MEASUREMENT_ID=G-LXP5YLGBF9
 ANALYTICS_GA4_API_SECRET=

@@ -194,7 +194,9 @@ design in React. When the approach changes in one, check the others.
   `ANALYTICS_GA4_API_SECRET` Worker secrets (`.dev.vars.example`), and
   answers ok without sending anything until both are set.
 - Never put an email address, or anything derived from one, in an event.
-- To track another outbound link, give it `data-outbound="<destination>"`.
+- To track another outbound link, give it `data-outbound="<destination>"` and
+  add the destination to `ANALYTICS_OUTBOUND_DESTINATIONS` in
+  `analytics-events.ts`. The relay rejects any param value it doesn't know.
 
 ### Privacy
 
