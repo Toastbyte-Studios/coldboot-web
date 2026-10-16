@@ -33,8 +33,13 @@ const { morse, size = 'md' } = Astro.props;
     min-height: calc(var(--u) * 2);
   }
 
+  /*
+   * Scales with the viewport so the widest large pattern (SOS, 27 units)
+   * still fits a card on a 320px screen: 2.6vw is about 8px there, and the
+   * full 12px from roughly 460px up.
+   */
   .lg {
-    --u: clamp(0.25rem, 2.5vw, 0.75rem);
+    --u: clamp(0.4375rem, 2.6vw, 0.75rem);
   }
 
   .dot,
@@ -58,8 +63,13 @@ const { morse, size = 'md' } = Astro.props;
   }
 
   @media print {
-    .signal {
-      --u: 0.2rem;
+    /*
+     * 4px units, so the longest code (0, five dashes: 76px) fits a card in
+     * the six-column print chart on Letter or A4 with normal margins.
+     */
+    .signal,
+    .lg {
+      --u: 0.25rem;
     }
 
     .dot,
