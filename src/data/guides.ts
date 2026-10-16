@@ -33,6 +33,16 @@ export const GUIDES: readonly Guide[] = [
       'SOS and the timing rules. Printable, and offline in the ColdBoot app.',
     tool: 'Morse Code',
   },
+  {
+    path: '/nato-phonetic-alphabet',
+    name: 'NATO phonetic alphabet',
+    title: 'NATO Phonetic Alphabet Chart with Pronunciation | ColdBoot',
+    description:
+      'The NATO phonetic alphabet from Alpha to Zulu, with how to say each ' +
+      'word, radio numbers and the official spellings. Offline in the ' +
+      'ColdBoot app.',
+    tool: 'NATO Phonetic',
+  },
 ];
 
 export function findGuide(path: string): Guide {

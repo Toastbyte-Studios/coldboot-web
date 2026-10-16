@@ -1,0 +1,289 @@
+---
+/**
+ * /nato-phonetic-alphabet: the NATO (ICAO) spelling alphabet, for people
+ * searching for it, that also shows ColdBoot carries it offline.
+ *
+ * The code words are the app's table (src/data/nato.ts). Pronunciations,
+ * radio digits and the official spellings are standard ICAO reference, not
+ * app features, and the copy says so. The "in ColdBoot" section was checked
+ * against the app: NatoPhoneticScreen (one 26-letter table) and its entry in
+ * utils/ragSearch.ts (the app's search opens it).
+ */
+import {
+  NATO_ALPHABET,
+  NATO_IN_EFFECT,
+  RADIO_DIGITS,
+  spellPhonetic,
+} from '../data/nato';
+import Guide from '../layouts/Guide.astro';
+
+const EXAMPLES = ['SMITH', 'GRID'];
+const officialSpellings = NATO_ALPHABET.filter((l) => l.icao);
+---
+
+<Guide
+  path="/nato-phonetic-alphabet"
+  heading="NATO phonetic alphabet"
+  lede="Alpha to Zulu: the 26 code words used to spell things out clearly over a radio or a bad phone line, with how to say each one, plus how to read numbers on the radio."
+  waitlistId="nato"
+>
+  <section aria-labelledby="alphabet">
+    <h2 id="alphabet">The alphabet, A to Z</h2>
+    <p>
+      Each letter has one code word, chosen to sound unlike every other, so it
+      survives static, wind and accents. Under each word is how to say it, with
+      the stressed syllables in capitals.
+    </p>
+    <dl class="chart">
+      {NATO_ALPHABET.map((l) => (
+        <div class="cell">
+          <dt>{l.letter}</dt>
+          <dd>
+            <span class="word">{l.word}</span>
+            <span class="say">{l.say}</span>
+          </dd>
+        </div>
+      ))}
+    </dl>
+  </section>
+
+  <section aria-labelledby="using">
+    <h2 id="using">How to use it</h2>
+    <p>
+      Use it whenever a mistaken letter would matter: names, call signs, grid
+      references, addresses, license plates. Say the code words in order, not
+      the letters:
+    </p>
+    <ul class="examples">
+      {EXAMPLES.map((word) => (
+        <li>
+          <span class="example-word">{word}</span>
+          <span class="example-spelled">{spellPhonetic(word)}</span>
+        </li>
+      ))}
+    </ul>
+    <p>
+      Speak at an even pace, pause between words, and if you're asked to repeat,
+      spell it again the same way rather than switching to other words.
+    </p>
+  </section>
+
+  <section aria-labelledby="numbers">
+    <h2 id="numbers">Numbers on the radio</h2>
+    <p>
+      Radio procedure has its own way of saying digits, so they can't be
+      confused with each other or with words: three becomes "tree", five "fife",
+      nine "niner". Read numbers digit by digit, so 35 is "tree fife".
+    </p>
+    <dl class="digits">
+      {RADIO_DIGITS.map((d) => (
+        <div>
+          <dt>{d.digit}</dt>
+          <dd>{d.say}</dd>
+        </div>
+      ))}
+    </dl>
+  </section>
+
+  <section aria-labelledby="spellings">
+    <h2 id="spellings">
+      {officialSpellings.map((l) => l.icao).join(', ')}: the official spellings
+    </h2>
+    <p>
+      This chart uses the spellings most people know. The official ICAO list
+      writes{' '}
+      {officialSpellings.map((l, i) => (
+        <>
+          {i > 0 && (i === officialSpellings.length - 1 ? ' and ' : ', ')}
+          <strong>{l.icao}</strong> for {l.word}
+        </>
+      ))}
+      . Alfa is spelled with an F so speakers of languages that don't read "ph"
+      as F still say it right, and Juliett has a double T so French speakers
+      don't drop the final letter as silent. Said aloud, they sound the same.
+    </p>
+  </section>
+
+  <section aria-labelledby="history">
+    <h2 id="history">Where it came from</h2>
+    <p>
+      The alphabet was drawn up for international aviation by the International
+      Civil Aviation Organization (ICAO), testing words with speakers of many
+      languages, and the current version took effect on {NATO_IN_EFFECT}. NATO
+      adopted it too, which is where the everyday name comes from, and it's now
+      used across aviation, shipping, the military, emergency services and
+      amateur radio.
+    </p>
+  </section>
+
+  <Fragment slot="app">
+    <p>
+      ColdBoot's NATO Phonetic tool keeps the whole alphabet on your phone, in
+      one table you can open with no signal. It sits in the Comms module next to
+      Morse Code, and the app's search finds it when you type "NATO" or
+      "phonetic".
+    </p>
+    <p>
+      The app's table is the 26 code words. The pronunciations and radio numbers
+      on this page are standard reference, here for printing or reading ahead.
+    </p>
+  </Fragment>
+</Guide>
+
+<style>
+  .chart {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(10.5rem, 1fr));
+    gap: 0.75rem;
+    margin: 1.75rem 0 0;
+  }
+
+  .cell {
+    display: grid;
+    align-content: start;
+    gap: 0.625rem;
+    padding: 1rem 1.125rem 1.125rem;
+    border: 1px solid var(--cb-border);
+    border-radius: 16px;
+    background: var(--cb-surface);
+  }
+
+  dt {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 2.25rem;
+    line-height: 1;
+  }
+
+  .cell dd {
+    display: grid;
+    gap: 0.375rem;
+    margin: 0;
+  }
+
+  .word {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.375rem;
+    line-height: 1.1;
+    color: var(--cb-brand);
+  }
+
+  .say {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    color: var(--cb-muted-ground);
+  }
+
+  .examples {
+    display: grid;
+    gap: 0.75rem;
+    margin: 1.25rem 0 1.5rem;
+    padding: 0;
+    list-style: none;
+  }
+
+  .examples li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.5rem 1.25rem;
+    margin: 0;
+    padding: 1rem 1.25rem;
+    border: 1px solid var(--cb-border);
+    border-radius: 14px;
+    background: var(--cb-surface);
+  }
+
+  .example-word {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.5rem;
+    letter-spacing: 0.12em;
+  }
+
+  .example-spelled {
+    font-family: var(--font-mono);
+    font-size: 0.9375rem;
+    color: var(--cb-brand);
+  }
+
+  .digits {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(6.5rem, 1fr));
+    gap: 0.5rem;
+    max-width: 44rem;
+    margin: 1.5rem 0 0;
+  }
+
+  .digits div {
+    display: grid;
+    gap: 0.375rem;
+    padding: 0.875rem 1rem;
+    border: 1px solid var(--cb-border);
+    border-radius: 14px;
+    background: var(--cb-surface);
+  }
+
+  .digits dt {
+    font-size: 1.75rem;
+  }
+
+  .digits dd {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    color: var(--cb-brand);
+  }
+
+  @media (max-width: 640px) {
+    .chart {
+      grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
+      gap: 0.5rem;
+    }
+
+    .cell {
+      padding: 0.75rem;
+    }
+  }
+
+  @media print {
+    .chart {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 0.25rem;
+    }
+
+    .cell {
+      gap: 0.375rem;
+      padding: 0.5rem 0.625rem 0.625rem;
+    }
+
+    dt {
+      font-size: 1.5rem;
+    }
+
+    .word {
+      font-size: 1rem;
+    }
+
+    .say {
+      font-size: 0.625rem;
+    }
+
+    .cell,
+    .examples li,
+    .digits div {
+      border-color: #000;
+      background: none;
+      break-inside: avoid;
+    }
+
+    .word,
+    .say,
+    .example-spelled,
+    .digits dd {
+      color: #000;
+    }
+  }
+</style>

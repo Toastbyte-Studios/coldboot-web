@@ -171,19 +171,23 @@ const structuredData = buildGuideStructuredData({
     margin: 0 0 1rem;
   }
 
-  .body :global(ul),
-  .app-copy :global(ul) {
+  /*
+   * Plain prose lists only: a list with a class of its own (a chart, the
+   * NATO examples) styles itself, so these don't need out-ranking.
+   */
+  .body :global(ul:not([class])),
+  .app-copy :global(ul:not([class])) {
     margin: 0 0 1rem;
     padding-left: 1.25rem;
   }
 
-  .body :global(li + li),
-  .app-copy :global(li + li) {
+  .body :global(ul:not([class]) > li + li),
+  .app-copy :global(ul:not([class]) > li + li) {
     margin-top: 0.5rem;
   }
 
-  .body :global(li::marker),
-  .app-copy :global(li::marker) {
+  .body :global(ul:not([class]) > li::marker),
+  .app-copy :global(ul:not([class]) > li::marker) {
     color: var(--cb-brand);
   }
 

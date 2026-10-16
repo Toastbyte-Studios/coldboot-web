@@ -8,6 +8,11 @@ import {
   MORSE_LETTERS,
   MORSE_NUMBERS,
 } from '../src/data/morse.ts';
+import {
+  NATO_ALPHABET,
+  RADIO_DIGITS,
+  spellPhonetic,
+} from '../src/data/nato.ts';
 import { buildGuideStructuredData } from '../src/lib/structured-data.ts';
 import { parseSubmission } from '../src/lib/waitlist.ts';
 
@@ -71,6 +76,39 @@ describe('MORSE_CODE', () => {
   });
 });
 
+describe('NATO_ALPHABET', () => {
+  it('has one code word for each letter, A to Z in order', () => {
+    assert.deepEqual(
+      NATO_ALPHABET.map((l) => l.letter).join(''),
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+    );
+    for (const l of NATO_ALPHABET) {
+      assert.equal(l.word[0], l.letter, l.word);
+      assert.ok(l.say.length > 0, l.letter);
+    }
+  });
+
+  it('notes the ICAO spelling only where it differs', () => {
+    assert.deepEqual(
+      NATO_ALPHABET.filter((l) => l.icao).map((l) => [l.word, l.icao]),
+      [
+        ['Alpha', 'Alfa'],
+        ['Juliet', 'Juliett'],
+        ['X-ray', 'Xray'],
+      ],
+    );
+  });
+
+  it('spells words with the code words', () => {
+    assert.equal(spellPhonetic('sos'), 'Sierra Oscar Sierra');
+    assert.equal(spellPhonetic('A-1 b'), 'Alpha Bravo');
+  });
+
+  it('has radio pronunciations for all ten digits', () => {
+    assert.deepEqual(RADIO_DIGITS.map((d) => d.digit).join(''), '0123456789');
+  });
+});
+
 describe('buildGuideStructuredData', () => {
   const data = buildGuideStructuredData({
     site: new URL('https://coldboot.app'),
@@ -102,14 +140,16 @@ describe('buildGuideStructuredData', () => {
 });
 
 describe('guide waitlist sources', () => {
-  it('accepts the morse form', () => {
-    const form = new FormData();
-    form.set('email', 'ada@example.com');
-    form.set('source', 'morse');
-    assert.deepEqual(parseSubmission(form), {
-      ok: true,
-      email: 'ada@example.com',
-      source: 'morse',
+  for (const source of ['morse', 'nato'] as const) {
+    it(`accepts the ${source} form`, () => {
+      const form = new FormData();
+      form.set('email', 'ada@example.com');
+      form.set('source', source);
+      assert.deepEqual(parseSubmission(form), {
+        ok: true,
+        email: 'ada@example.com',
+        source,
+      });
     });
-  });
+  }
 });
