@@ -50,6 +50,13 @@ describe('RADIO_SERVICES', () => {
     assert.equal(freq('GMRS', 'Channel 20 / 20R'), '462.675 MHz');
     assert.equal(freq('HAM', '2m FM Simplex Calling'), '146.520 MHz');
   });
+
+  it('lists the power limits for GMRS channels', () => {
+    const notes = (name: string) =>
+      byId('GMRS').channels.find((c) => c.name === name)?.notes;
+    assert.match(notes('Channel 15 / 15R') ?? '', /^Up to 50W\./);
+    assert.match(notes('Channel 1 (Simplex)') ?? '', /^5W max\./);
+  });
 });
 
 describe('SERVICE_FACTS', () => {
@@ -72,6 +79,15 @@ describe('SERVICE_FACTS', () => {
     assert.match(app('FRS'), /0\.5 watts on channels 8-14/);
     assert.match(app('MURS'), /Maximum power: 2 watts/);
     assert.match(app('CB'), /4 watts AM, 12 watts PEP SSB/);
-    assert.match(app('GMRS'), /No exam/);
+    assert.deepEqual(
+      SERVICE_FACTS.map((f) => f.power),
+      [
+        '2 W (0.5 W on 8–14)',
+        'Up to 50 W, and repeaters',
+        '2 W, external antennas allowed',
+        '4 W AM, 12 W PEP SSB',
+        'Depends on band and license class',
+      ],
+    );
   });
 });

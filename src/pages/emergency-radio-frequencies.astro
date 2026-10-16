@@ -9,7 +9,7 @@
  * rules). The "in ColdBoot" section was checked against the app:
  * RadioFrequenciesScreen (five services, a detail table each),
  * RadioFrequencyDetailScreen (license banner), RepeaterBookStore (downloads
- * nearby repeaters from RepeaterBook when there's signal, caches the last
+ * nearby ham repeaters from RepeaterBook when there's signal, caches the last
  * list, lets you add your own) and the synthetic_radio_frequencies search
  * entry.
  */
@@ -168,9 +168,9 @@ const CALL_FIRST = [
       when you look up radio, GMRS, CB or a frequency.
     </p>
     <p>
-      When you do have signal, Local Repeaters downloads the ham and GMRS
-      repeaters near you from RepeaterBook and keeps the last list on your
-      phone, and you can add repeaters of your own.
+      When you do have signal, Local Repeaters downloads the ham repeaters near
+      you from RepeaterBook and keeps the last list on your phone, and you can
+      add repeaters of your own.
     </p>
   </Fragment>
 </Guide>
@@ -311,94 +311,6 @@ const CALL_FIRST = [
 
   .free {
     color: var(--cb-success);
-  }
-
-  /* Phones: each row becomes a small card, label above value. */
-  @media (max-width: 640px) {
-    table,
-    tbody,
-    tr,
-    th,
-    td {
-      display: block;
-    }
-
-    table {
-      border: 0;
-      background: none;
-    }
-
-    /* Hidden but still read: the cards label their own values. */
-    thead {
-      display: block;
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      margin: -1px;
-      overflow: hidden;
-      clip: rect(0 0 0 0);
-      white-space: nowrap;
-    }
-
-    tbody tr {
-      padding: 0.875rem 1rem;
-      border: 1px solid var(--cb-border);
-      border-radius: 14px;
-      background: var(--cb-surface);
-    }
-
-    tbody tr + tr {
-      margin-top: 0.5rem;
-    }
-
-    tbody tr + tr > * {
-      border-top: 0;
-    }
-
-    th,
-    td {
-      padding: 0;
-    }
-
-    .compare td {
-      display: grid;
-      grid-template-columns: 5.5rem minmax(0, 1fr);
-      gap: 0.75rem;
-      margin-top: 0.375rem;
-    }
-
-    .compare td::before {
-      content: attr(data-label);
-      font-family: var(--font-mono);
-      font-size: 0.6875rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--cb-muted-ground);
-      padding-top: 0.15rem;
-    }
-
-    .compare tbody th {
-      font-size: 1.0625rem;
-    }
-
-    .channels tr {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
-      gap: 0.25rem 0.75rem;
-    }
-
-    .channels .notes {
-      grid-column: 1 / -1;
-    }
-
-    .channels .freq {
-      text-align: right;
-    }
-
-    .channels .mode {
-      grid-column: 1 / -1;
-      color: var(--cb-muted-ground);
-    }
   }
 
   @media print {
