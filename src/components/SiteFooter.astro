@@ -1,5 +1,6 @@
 ---
 import { version } from '../../package.json';
+import { FAQ_PAGE } from '../data/faq';
 import { GUIDES } from '../data/guides';
 import { SITE } from '../data/site';
 
@@ -32,6 +33,7 @@ const releaseUrl = `${SITE.repoUrl}/releases/tag/v${version}`;
     </a>
   </p>
   <nav aria-label="Footer">
+    <a href={FAQ_PAGE.path}>{FAQ_PAGE.name}</a>
     <a href="/privacy">Privacy</a>
     <!--
       Hidden until the script below confirms consent is being asked for.

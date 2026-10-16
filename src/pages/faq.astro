@@ -1,0 +1,222 @@
+---
+/**
+ * /faq: plain answers to the questions people ask about ColdBoot before it
+ * launches. The questions and answers live in src/data/faq.ts, which also
+ * feeds the page's FAQPage structured data and /llms.txt, and says where in
+ * the app each answer was checked.
+ */
+import SiteFooter from '../components/SiteFooter.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import WaitlistForm from '../components/WaitlistForm.astro';
+import { FAQ, FAQ_PAGE } from '../data/faq';
+import { SITE } from '../data/site';
+import Base from '../layouts/Base.astro';
+import { buildFaqStructuredData } from '../lib/structured-data';
+
+const structuredData = buildFaqStructuredData({
+  site: Astro.site!,
+  siteName: SITE.name,
+  path: FAQ_PAGE.path,
+  name: FAQ_PAGE.name,
+  description: FAQ_PAGE.description,
+  studioUrl: SITE.studio.url,
+  entries: FAQ,
+});
+---
+
+<Base
+  title={FAQ_PAGE.title}
+  description={FAQ_PAGE.description}
+  structuredData={structuredData}
+>
+  <SiteHeader />
+
+  <main class="faq wrap">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <ol>
+        <li>
+          <a href="/">{SITE.name}</a>
+        </li>
+        <li>
+          <span aria-current="page">{FAQ_PAGE.name}</span>
+        </li>
+      </ol>
+    </nav>
+
+    <header class="intro">
+      <p class="eyebrow">Questions</p>
+      <h1>{SITE.name}, answered</h1>
+      <p class="lede">
+        What it does with no signal, what it costs, when it launches and what
+        happens to your data.
+      </p>
+    </header>
+
+    <ol class="jump" aria-label="Questions on this page">
+      {FAQ.map((e) => (
+        <li>
+          <a href={`#${e.id}`}>{e.question}</a>
+        </li>
+      ))}
+    </ol>
+
+    <div class="entries">
+      {FAQ.map((e) => (
+        <section aria-labelledby={e.id}>
+          <h2 id={e.id}>{e.question}</h2>
+          {e.answer.map((p) => (
+            <p>{p}</p>
+          ))}
+          {e.id === 'privacy' && (
+            <p>
+              <a href="/privacy">Read the website's privacy policy</a>
+            </p>
+          )}
+        </section>
+      ))}
+    </div>
+
+    <section class="join" aria-labelledby="join-heading">
+      <p class="eyebrow">{SITE.launchLabel}</p>
+      <h2 id="join-heading">Hear when it's ready.</h2>
+      <WaitlistForm id="faq" />
+    </section>
+  </main>
+
+  <SiteFooter />
+</Base>
+
+<style>
+  .faq {
+    padding-block: 2rem 6rem;
+  }
+
+  .crumbs ol {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--cb-muted-ground);
+  }
+
+  .crumbs li + li::before {
+    content: '/';
+    margin-right: 0.5rem;
+    color: var(--cb-separator);
+  }
+
+  .intro {
+    max-width: 46rem;
+    margin-top: 2.5rem;
+  }
+
+  .eyebrow {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--cb-brand);
+  }
+
+  h1 {
+    margin: 1rem 0 0;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(3rem, 7vw, 5rem);
+    line-height: 0.92;
+    text-transform: uppercase;
+    text-wrap: balance;
+    overflow-wrap: break-word;
+  }
+
+  .lede {
+    margin: 1.5rem 0 0;
+    max-width: 40rem;
+    font-size: 1.25rem;
+    line-height: 1.55;
+  }
+
+  .jump {
+    display: grid;
+    gap: 0.5rem;
+    max-width: 42rem;
+    margin: 3rem 0 0;
+    padding-left: 1.5rem;
+    font-size: 1.0625rem;
+    line-height: 1.5;
+  }
+
+  .jump li::marker {
+    font-family: var(--font-mono);
+    color: var(--cb-brand);
+  }
+
+  .jump a,
+  .entries a {
+    color: inherit;
+    text-decoration-color: var(--cb-brand);
+    text-underline-offset: 0.2em;
+  }
+
+  .entries section {
+    max-width: 42rem;
+    margin-top: 3.5rem;
+    scroll-margin-top: 1.5rem;
+  }
+
+  h2 {
+    margin: 0 0 1rem;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(1.875rem, 3.4vw, 2.5rem);
+    line-height: 1.02;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    text-wrap: balance;
+  }
+
+  .entries p {
+    margin: 0 0 1rem;
+    font-size: 1.0625rem;
+    line-height: 1.65;
+  }
+
+  .join {
+    display: grid;
+    gap: 1.25rem;
+    margin-top: 6rem;
+    padding: 2rem;
+    border: 1px solid var(--cb-border);
+    border-radius: 24px;
+    background: var(--cb-surface);
+  }
+
+  .join h2 {
+    margin: 0;
+  }
+
+  @media (max-width: 640px) {
+    .faq {
+      padding-block: 1rem 4rem;
+    }
+
+    .intro {
+      margin-top: 1.75rem;
+    }
+
+    .lede {
+      font-size: 1.0625rem;
+    }
+
+    .join {
+      padding: 1.25rem;
+    }
+  }
+</style>
