@@ -141,3 +141,47 @@ export function buildGuideStructuredData(input: GuideStructuredDataInput) {
     ],
   };
 }
+
+export interface FaqStructuredDataInput extends GuideStructuredDataInput {
+  entries: readonly { question: string; answer: readonly string[] }[];
+}
+
+/**
+ * /faq: an FAQPage (a kind of WebPage) whose Questions are the page's own
+ * text, plus the same breadcrumb as a guide.
+ *
+ * Google stopped showing FAQ rich results on 7 May 2026, so this earns no
+ * special listing there. It's kept because it's accurate, costs nothing, and
+ * other search engines and AI assistants still read question-and-answer
+ * markup. Unlike a guide, the page is about the app itself.
+ */
+export function buildFaqStructuredData(input: FaqStructuredDataInput) {
+  const base = buildGuideStructuredData(input);
+  const [page, crumbs] = base['@graph'];
+  const home = new URL('/', input.site).href;
+  // A guide mentions the app; the FAQ is about it.
+  const rest: Omit<typeof page, 'mentions'> & { mentions?: unknown } = {
+    ...page,
+  };
+  delete rest.mentions;
+
+  return {
+    ...base,
+    '@graph': [
+      {
+        ...rest,
+        '@type': 'FAQPage',
+        about: { '@id': `${home}#app` },
+        mainEntity: input.entries.map((e) => ({
+          '@type': 'Question',
+          name: e.question,
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: e.answer.join('\n\n'),
+          },
+        })),
+      },
+      crumbs,
+    ],
+  };
+}

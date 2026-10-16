@@ -21,6 +21,16 @@ export interface Guide {
   description: string;
   /** The ColdBoot tool the guide is about, for the page's app section. */
   tool: string;
+  /**
+   * Alt text for the guide's link-preview card, public/og/<path>.png, which
+   * scripts/generate-share-images.mjs draws. Say what the card shows.
+   */
+  shareAlt: string;
+}
+
+/** The guide's link-preview card. */
+export function shareImagePath(guide: Guide): `/${string}` {
+  return `/og${guide.path}.png`;
 }
 
 export const GUIDES: readonly Guide[] = [
@@ -32,6 +42,9 @@ export const GUIDES: readonly Guide[] = [
       'International Morse code for A–Z and 0–9, with how each code sounds, ' +
       'SOS and the timing rules. Printable, and offline in the ColdBoot app.',
     tool: 'Morse Code',
+    shareAlt:
+      'ColdBoot field reference card: "Morse code chart" beside SOS in ' +
+      'dots and dashes.',
   },
   {
     path: '/nato-phonetic-alphabet',
@@ -42,6 +55,9 @@ export const GUIDES: readonly Guide[] = [
       'word, radio numbers and the official spellings. Offline in the ' +
       'ColdBoot app.',
     tool: 'NATO Phonetic',
+    shareAlt:
+      'ColdBoot field reference card: "NATO phonetic alphabet" beside A ' +
+      'Alpha, B Bravo, C Charlie.',
   },
   {
     path: '/ground-to-air-signals',
@@ -51,6 +67,9 @@ export const GUIDES: readonly Guide[] = [
       'The ICAO ground-to-air code for signaling rescue aircraft: what V, X, ' +
       'N, Y and the arrow mean, how big to make them and how pilots reply.',
     tool: 'Ground-to-Air Signals',
+    shareAlt:
+      'ColdBoot field reference card: "Ground-to-air signals" beside the ' +
+      'symbols V, X, N, Y and an arrow.',
   },
   {
     path: '/emergency-radio-frequencies',
@@ -60,6 +79,9 @@ export const GUIDES: readonly Guide[] = [
       'US radio channels for FRS, GMRS, MURS, CB and ham: frequencies, ' +
       'license rules, power limits and where to call for help first.',
     tool: 'Radio Frequencies',
+    shareAlt:
+      'ColdBoot field reference card: "Emergency radio frequencies" beside ' +
+      'CB 9 27.065, GMRS 20 462.675 and 2 m 146.520 MHz.',
   },
 ];
 

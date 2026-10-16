@@ -222,10 +222,24 @@ design in React. When the approach changes in one, check the others.
 - Reference guides (`/morse-code`, ...) target searches beyond the brand.
   Each one is a page in `src/pages/` using `layouts/Guide.astro`, plus an
   entry in `GUIDES` (`src/data/guides.ts`), which supplies its title,
-  description, footer link, `llms.txt` line and structured data. Give each
-  its own waitlist source in `WAITLIST_SOURCES`. Reference data comes from the
-  app (e.g. `src/data/morse.ts` copies ColdBoot's Morse table), and every
-  claim about the app is checked against the ColdBoot repo first.
+  description, footer link, home-page card, "More field references" link on
+  the other guides, `llms.txt` line and structured data. Give each its own
+  waitlist source in `WAITLIST_SOURCES`. Reference data comes from the app
+  (e.g. `src/data/morse.ts` copies ColdBoot's Morse table), and every claim
+  about the app is checked against the ColdBoot repo first.
+- Each guide has its own link-preview card, `public/og/<path>.png`, drawn by
+  `node scripts/generate-share-images.mjs` from the guide's own data (add a
+  sample for a new guide there) and described by `shareAlt` in `GUIDES`.
+  The script renders with satori and the `@fontsource` brand fonts, so it
+  works offline and doesn't depend on installed fonts. Commit the PNGs;
+  `test/share-images.test.ts` fails if one is missing. Other pages use
+  `public/og.png`.
+- `/faq` answers pre-launch questions. The entries live in `src/data/faq.ts`
+  and also become the page's `FAQPage` structured data and a section of
+  `/llms.txt`, so keep answers plain text. Google retired FAQ rich results
+  in May 2026; the markup is kept for other search engines and AI
+  assistants. Each answer about the app notes where it was checked; update
+  the pricing answer when Pro's contents and price are set.
 - Icons: after re-copying brand assets, run `node scripts/generate-icons.mjs`.
 - Cloudflare's dashboard can prepend rules to robots.txt and block AI crawlers
   at the edge. Those settings override `public/robots.txt`.

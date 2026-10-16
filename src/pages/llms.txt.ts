@@ -6,6 +6,7 @@
  * can't say anything the site doesn't: the claims in src/data/ have already
  * been checked against the app. Add facts there, not here.
  */
+import { FAQ, FAQ_PAGE } from '../data/faq';
 import { GUIDES } from '../data/guides';
 import { MODULES } from '../data/modules';
 import { READOUTS, SITE, WAITLIST_PROMISE } from '../data/site';
@@ -41,6 +42,9 @@ export const GET: APIRoute = ({ site }) => {
     '',
     ...SPOTLIGHT_FEATURES.map((f) => `- **${f.heading}** ${f.body}`),
     '',
+    '## Questions and answers',
+    '',
+    ...FAQ.flatMap((e) => [`### ${e.question}`, '', ...e.answer, '']),
     '## Waitlist',
     '',
     `${WAITLIST_PROMISE.full} Join at ${link('/#waitlist')}.`,
@@ -49,6 +53,7 @@ export const GET: APIRoute = ({ site }) => {
     '',
     `- [${SITE.name}](${home}): home page and waitlist`,
     ...GUIDES.map((g) => `- [${g.name}](${link(g.path)}): ${g.description}`),
+    `- [${FAQ_PAGE.name}](${link(FAQ_PAGE.path)}): ${FAQ_PAGE.description}`,
     `- [Privacy policy](${link('/privacy')}): what the website collects`,
     `- [${SITE.studio.name}](${SITE.studio.url}): the studio behind ${SITE.name}`,
     `- Contact: ${SITE.contactEmail}`,
