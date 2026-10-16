@@ -8,10 +8,17 @@ export const MAX_EMAIL_LENGTH = 254;
 
 /**
  * Which form a signup came from. Matches `WaitlistForm`'s `id`. Guide pages
- * each have their own (`morse` is /morse-code), so their signups can be
- * told apart from the home page's.
+ * each have their own (`morse` is /morse-code, `nato` is
+ * /nato-phonetic-alphabet), so their signups can be told apart from the
+ * home page's.
  */
-export const WAITLIST_SOURCES = ['hero', 'closing', 'retry', 'morse'] as const;
+export const WAITLIST_SOURCES = [
+  'hero',
+  'closing',
+  'retry',
+  'morse',
+  'nato',
+] as const;
 export type WaitlistSource = (typeof WAITLIST_SOURCES)[number];
 
 /**
