@@ -133,6 +133,10 @@ const structuredData = buildGuideStructuredData({
     line-height: 0.92;
     text-transform: uppercase;
     text-wrap: balance;
+    /* A safety net: a long word ("frequencies") on a narrow phone, set in a
+       fallback font if the display face hasn't loaded, breaks rather than
+       pushing the page sideways. */
+    overflow-wrap: break-word;
   }
 
   .lede {

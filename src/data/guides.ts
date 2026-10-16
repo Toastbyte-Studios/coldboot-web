@@ -52,6 +52,15 @@ export const GUIDES: readonly Guide[] = [
       'N, Y and the arrow mean, how big to make them and how pilots reply.',
     tool: 'Ground-to-Air Signals',
   },
+  {
+    path: '/emergency-radio-frequencies',
+    name: 'Emergency radio frequencies',
+    title: 'Emergency Radio Frequencies: GMRS, FRS, CB, Ham | ColdBoot',
+    description:
+      'US radio channels for FRS, GMRS, MURS, CB and ham: frequencies, ' +
+      'license rules, power limits and where to call for help first.',
+    tool: 'Radio Frequencies',
+  },
 ];
 
 export function findGuide(path: string): Guide {

@@ -1,0 +1,448 @@
+---
+/**
+ * /emergency-radio-frequencies: US channels for FRS, GMRS, MURS, CB and ham,
+ * for people searching for them, that also shows ColdBoot carries the table
+ * offline.
+ *
+ * The channels, license text and disclaimer are the app's own data
+ * (src/data/radio-frequencies.json, copied from ColdBoot, which cites the FCC
+ * rules). The "in ColdBoot" section was checked against the app:
+ * RadioFrequenciesScreen (five services, a detail table each),
+ * RadioFrequencyDetailScreen (license banner), RepeaterBookStore (downloads
+ * nearby repeaters from RepeaterBook when there's signal, caches the last
+ * list, lets you add your own) and the synthetic_radio_frequencies search
+ * entry.
+ */
+import {
+  licenseDetail,
+  RADIO_DISCLAIMER,
+  RADIO_SERVICES,
+  SERVICE_FACTS,
+  type ServiceId,
+} from '../data/radio';
+import Guide from '../layouts/Guide.astro';
+
+const service = (id: ServiceId) => {
+  const found = RADIO_SERVICES.find((s) => s.id === id);
+  if (!found) throw new Error(`No radio service ${id}`);
+  return found;
+};
+const channel = (id: ServiceId, name: string) => {
+  const found = service(id).channels.find((c) => c.name === name);
+  if (!found) throw new Error(`No ${id} channel ${name}`);
+  return found;
+};
+
+const anchor = (id: ServiceId) => id.toLowerCase();
+
+const CALL_FIRST = [
+  {
+    where: 'CB channel 9',
+    channel: channel('CB', 'Channel 9'),
+    who: 'No license',
+    why: 'The FCC reserves it for emergencies and traveler assistance, and nothing else.',
+  },
+  {
+    where: 'GMRS and FRS channel 20',
+    channel: channel('GMRS', 'Channel 20 / 20R'),
+    who: 'FRS radios need no license; GMRS needs one',
+    why: 'Some groups suggest it as a travel and calling channel with a 141.3 Hz tone. A custom, not a rule.',
+  },
+  {
+    where: '2 meter ham calling',
+    channel: channel('HAM', '2m FM Simplex Calling'),
+    who: 'Ham license',
+    why: 'The national simplex calling frequency. Make contact, then move to another frequency.',
+  },
+];
+---
+
+<Guide
+  path="/emergency-radio-frequencies"
+  heading="Emergency radio frequencies"
+  lede="The US channels for the radios people actually carry, FRS and GMRS walkie-talkies, MURS, CB and ham: which need a license, how much power each allows, and where to call first."
+  waitlistId="radio"
+>
+  <section aria-labelledby="which">
+    <h2 id="which">Which radio, and do you need a license?</h2>
+    <p>
+      Five radio services cover most handheld and vehicle radios in the United
+      States. Three need no license at all. These are US rules, set by the FCC;
+      other countries use different channels.
+    </p>
+    <div class="table-wrap">
+      <table class="compare">
+        <thead>
+          <tr>
+            <th scope="col">Service</th>
+            <th scope="col">Band</th>
+            <th scope="col">License</th>
+            <th scope="col">Power</th>
+            <th scope="col">Best for</th>
+          </tr>
+        </thead>
+        <tbody>
+          {SERVICE_FACTS.map((f) => (
+            <tr>
+              <th scope="row">
+                <a href={`#${anchor(f.id)}`}>{f.name}</a>
+              </th>
+              <td data-label="Band">{f.band}</td>
+              <td data-label="License">{f.license}</td>
+              <td data-label="Power">{f.power}</td>
+              <td data-label="Best for">{f.bestFor}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section aria-labelledby="first">
+    <h2 id="first">Where to call for help first</h2>
+    <p>
+      No channel is guaranteed to have someone listening, so call on the one
+      most likely to be watched for your radio, then try others.
+    </p>
+    <ul class="first">
+      {CALL_FIRST.map((c) => (
+        <li>
+          <p class="first-where">{c.where}</p>
+          <p class="first-freq">{c.channel.frequency}</p>
+          <p class="first-why">{c.why}</p>
+          <p class="first-who">{c.who}</p>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  {RADIO_SERVICES.map((s) => (
+    <section aria-labelledby={anchor(s.id)}>
+      <h2 id={anchor(s.id)}>{s.title}</h2>
+      <div class:list={['badge', s.requiresLicense ? 'licensed' : 'free']}>
+        {s.requiresLicense ? 'License required' : 'No license needed'}
+      </div>
+      <p>
+        {s.description} {licenseDetail(s.licenseInfo)}
+      </p>
+      <div class="table-wrap">
+        <table class="channels">
+          <caption class="visually-hidden">{s.title} channels</caption>
+          <thead>
+            <tr>
+              <th scope="col">Channel</th>
+              <th scope="col">Frequency</th>
+              <th scope="col">Mode</th>
+              <th scope="col">Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            {s.channels.map((c) => (
+              <tr>
+                <th scope="row">{c.name}</th>
+                <td class="freq">{c.frequency}</td>
+                <td class="mode">{c.mode}</td>
+                <td class="notes">{c.notes}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  ))}
+
+  <section aria-labelledby="rules">
+    <h2 id="rules">Before you transmit</h2>
+    <p>{RADIO_DISCLAIMER}</p>
+    <p>
+      Listening is legal on all of these. The license rules are about
+      transmitting, and power limits apply even on the license-free services.
+    </p>
+  </section>
+
+  <Fragment slot="app">
+    <p>
+      ColdBoot's Radio Frequencies tool keeps this table on your phone: all five
+      services, each with its channels, modes and license rules, in the Comms
+      module next to Morse Code and the NATO alphabet. The app's search finds it
+      when you look up radio, GMRS, CB or a frequency.
+    </p>
+    <p>
+      When you do have signal, Local Repeaters downloads the ham and GMRS
+      repeaters near you from RepeaterBook and keeps the last list on your
+      phone, and you can add repeaters of your own.
+    </p>
+  </Fragment>
+</Guide>
+
+<style>
+  .table-wrap {
+    margin: 1.5rem 0 0;
+    overflow-x: auto;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border: 1px solid var(--cb-border);
+    border-radius: 16px;
+    background: var(--cb-surface);
+    font-size: 0.9375rem;
+    line-height: 1.45;
+  }
+
+  th,
+  td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  thead th {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--cb-muted-ground);
+    border-bottom: 1px solid var(--cb-border);
+  }
+
+  tbody tr + tr > * {
+    border-top: 1px solid var(--cb-separator);
+  }
+
+  tbody th {
+    font-weight: 600;
+  }
+
+  .compare tbody th a {
+    color: inherit;
+    text-decoration-color: var(--cb-brand);
+    text-underline-offset: 0.2em;
+  }
+
+  .channels {
+    max-width: 56rem;
+  }
+
+  .freq {
+    font-family: var(--font-mono);
+    white-space: nowrap;
+    color: var(--cb-brand);
+  }
+
+  .mode {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    white-space: nowrap;
+  }
+
+  .notes {
+    color: var(--cb-muted-ground);
+  }
+
+  .first {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+    gap: 0.75rem;
+    margin: 1.5rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .first li {
+    display: grid;
+    align-content: start;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 1.25rem;
+    border: 1px solid var(--cb-border);
+    border-radius: 16px;
+    background: var(--cb-surface);
+  }
+
+  .first li p {
+    margin: 0;
+  }
+
+  .first .first-where {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--cb-muted-ground);
+  }
+
+  .first .first-freq {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 2.25rem;
+    line-height: 1;
+    color: var(--cb-brand);
+  }
+
+  .first .first-why {
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  .first .first-who {
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+
+  .badge {
+    display: inline-block;
+    margin: 0 0 1rem;
+    padding: 0.25rem 0.75rem;
+    border: 1px solid currentColor;
+    border-radius: 999px;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .licensed {
+    color: var(--cb-error);
+  }
+
+  .free {
+    color: var(--cb-success);
+  }
+
+  /* Phones: each row becomes a small card, label above value. */
+  @media (max-width: 640px) {
+    table,
+    tbody,
+    tr,
+    th,
+    td {
+      display: block;
+    }
+
+    table {
+      border: 0;
+      background: none;
+    }
+
+    /* Hidden but still read: the cards label their own values. */
+    thead {
+      display: block;
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
+    }
+
+    tbody tr {
+      padding: 0.875rem 1rem;
+      border: 1px solid var(--cb-border);
+      border-radius: 14px;
+      background: var(--cb-surface);
+    }
+
+    tbody tr + tr {
+      margin-top: 0.5rem;
+    }
+
+    tbody tr + tr > * {
+      border-top: 0;
+    }
+
+    th,
+    td {
+      padding: 0;
+    }
+
+    .compare td {
+      display: grid;
+      grid-template-columns: 5.5rem minmax(0, 1fr);
+      gap: 0.75rem;
+      margin-top: 0.375rem;
+    }
+
+    .compare td::before {
+      content: attr(data-label);
+      font-family: var(--font-mono);
+      font-size: 0.6875rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--cb-muted-ground);
+      padding-top: 0.15rem;
+    }
+
+    .compare tbody th {
+      font-size: 1.0625rem;
+    }
+
+    .channels tr {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 0.25rem 0.75rem;
+    }
+
+    .channels .notes {
+      grid-column: 1 / -1;
+    }
+
+    .channels .freq {
+      text-align: right;
+    }
+
+    .channels .mode {
+      grid-column: 1 / -1;
+      color: var(--cb-muted-ground);
+    }
+  }
+
+  @media print {
+    table,
+    .first li {
+      border-color: #000;
+      background: none;
+    }
+
+    .table-wrap {
+      overflow: visible;
+    }
+
+    tr,
+    .first li {
+      break-inside: avoid;
+    }
+
+    table {
+      font-size: 0.75rem;
+      line-height: 1.3;
+    }
+
+    th,
+    td {
+      padding: 0.25rem 0.5rem;
+    }
+
+    .first li {
+      padding: 0.75rem;
+    }
+
+    .first .first-freq {
+      font-size: 1.5rem;
+    }
+
+    .freq,
+    .notes,
+    thead th,
+    .first .first-freq,
+    .first .first-where,
+    .licensed,
+    .free {
+      color: #000;
+    }
+  }
+</style>

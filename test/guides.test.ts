@@ -184,7 +184,7 @@ describe('buildGuideStructuredData', () => {
 });
 
 describe('guide waitlist sources', () => {
-  for (const source of ['morse', 'nato', 'signals'] as const) {
+  for (const source of ['morse', 'nato', 'signals', 'radio'] as const) {
     it(`accepts the ${source} form`, () => {
       const form = new FormData();
       form.set('email', 'ada@example.com');
