@@ -6,8 +6,12 @@
 /** RFC 5321 caps a forward path at 256 octets, which leaves 254 for the address. */
 export const MAX_EMAIL_LENGTH = 254;
 
-/** Which form on the page a signup came from. Matches `WaitlistForm`'s `id`. */
-export const WAITLIST_SOURCES = ['hero', 'closing', 'retry'] as const;
+/**
+ * Which form a signup came from. Matches `WaitlistForm`'s `id`. Guide pages
+ * each have their own (`morse` is /morse-code), so their signups can be
+ * told apart from the home page's.
+ */
+export const WAITLIST_SOURCES = ['hero', 'closing', 'retry', 'morse'] as const;
 export type WaitlistSource = (typeof WAITLIST_SOURCES)[number];
 
 /**

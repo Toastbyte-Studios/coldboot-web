@@ -1,0 +1,358 @@
+---
+/**
+ * /morse-code: an International Morse code chart, for people searching for
+ * one, that also shows what ColdBoot's Morse tools do offline.
+ *
+ * The chart is the app's own table (src/data/morse.ts). The "in ColdBoot"
+ * section was checked against the app: src/screens/MorseCode (Alpha to
+ * Morse, Morse to Alpha, the trainer's three levels, the cheat sheet and its
+ * sort) and src/stores/SignalingStore.ts (Flashlight SOS mode, optional tone).
+ */
+import MorseSignal from '../components/MorseSignal.astro';
+import {
+  lettersByLength,
+  MORSE_LETTERS,
+  MORSE_NUMBERS,
+  MORSE_TIMING,
+  SOS,
+} from '../data/morse';
+import Guide from '../layouts/Guide.astro';
+
+const byLength = lettersByLength();
+const symbols = (n: number) => (n === 1 ? 'symbol' : 'symbols');
+---
+
+<Guide
+  path="/morse-code"
+  heading="Morse code chart"
+  lede="Every letter and number in International Morse code, with how each one sounds, plus SOS and the timing that makes it readable. Print it, or keep it on your phone."
+  waitlistId="morse"
+>
+  <section aria-labelledby="letters">
+    <h2 id="letters">Letters A to Z</h2>
+    <p>
+      A dot is a short signal and a dash is a long one, three times as long. Say
+      them aloud as "dit" and "dah" and they're easier to remember by sound than
+      by sight.
+    </p>
+    <dl class="chart">
+      {MORSE_LETTERS.map((c) => (
+        <div class="cell">
+          <dt>{c.char}</dt>
+          <dd>
+            <MorseSignal morse={c.morse} />
+            <span class="spoken">{c.spellOut}</span>
+          </dd>
+        </div>
+      ))}
+    </dl>
+  </section>
+
+  <section aria-labelledby="numbers">
+    <h2 id="numbers">Numbers 0 to 9</h2>
+    <p>
+      Every number is five symbols long, and they follow a pattern: 1 to 5 add a
+      dot at the front for each step, and 6 to 9 swap dots for dashes the same
+      way. 0 is five dashes.
+    </p>
+    <dl class="chart">
+      {MORSE_NUMBERS.map((c) => (
+        <div class="cell">
+          <dt>{c.char}</dt>
+          <dd>
+            <MorseSignal morse={c.morse} />
+            <span class="spoken">{c.spellOut}</span>
+          </dd>
+        </div>
+      ))}
+    </dl>
+  </section>
+
+  <section aria-labelledby="shortest">
+    <h2 id="shortest">Shortest codes first</h2>
+    <p>
+      The most common letters in English got the shortest codes, so E and T are
+      a single symbol. Learning the letters in this order means the ones you'll
+      meet most are the first you know.
+    </p>
+    <dl class="lengths">
+      {byLength.map((g) => (
+        <div>
+          <dt>
+            {g.length} {symbols(g.length)}
+          </dt>
+          <dd>{g.chars.join(' ')}</dd>
+        </div>
+      ))}
+    </dl>
+  </section>
+
+  <section aria-labelledby="sos">
+    <h2 id="sos">SOS in Morse code</h2>
+    <div class="sos">
+      <MorseSignal morse={SOS.morse} size="lg" />
+      <p class="sos-spoken">Three short, three long, three short</p>
+    </div>
+    <p>
+      SOS is the international distress signal: three dots, three dashes, three
+      dots, then a pause, repeated until someone answers. It was chosen because
+      it's simple to send and hard to mistake. It doesn't stand for anything.
+    </p>
+    <p>
+      It works with anything that can be short or long: a flashlight, a car's
+      headlights, a whistle or a horn, or knocking. With a light, make each
+      flash a clear on and off, and point it toward whoever might see it.
+    </p>
+  </section>
+
+  <section aria-labelledby="timing">
+    <h2 id="timing">Morse code timing</h2>
+    <p>
+      Morse is read by rhythm, so the gaps matter as much as the signals. Every
+      length is a multiple of one dot:
+    </p>
+    <table class="timing">
+      <thead>
+        <tr>
+          <th scope="col">Element</th>
+          <th scope="col">Length</th>
+        </tr>
+      </thead>
+      <tbody>
+        {MORSE_TIMING.map((t) => (
+          <tr>
+            <th scope="row">{t.element}</th>
+            <td>
+              {t.units} {t.units === 1 ? 'unit' : 'units'}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+    <p>
+      Keep the ratios and the speed can be anything. Slow and even beats fast
+      and ragged, especially by light.
+    </p>
+  </section>
+
+  <Fragment slot="app">
+    <p>
+      ColdBoot's Morse Code tool keeps all of this on your phone and works
+      without a connection:
+    </p>
+    <ul>
+      <li>
+        <strong>Alpha to Morse</strong> flashes a message you type with your
+        phone's light, with an optional tone.
+      </li>
+      <li>
+        <strong>Morse to Alpha</strong> decodes a reply as you tap in the dots
+        and dashes.
+      </li>
+      <li>
+        <strong>The trainer</strong> plays Morse for you to name, from single
+        letters up to words and full sentences.
+      </li>
+      <li>
+        <strong>The cheat sheet</strong> is this chart, sorted alphabetically or
+        shortest pattern first.
+      </li>
+      <li>
+        <strong>The Flashlight's SOS mode</strong> flashes SOS on repeat, with
+        or without a tone.
+      </li>
+    </ul>
+  </Fragment>
+</Guide>
+
+<style>
+  .chart {
+    display: grid;
+    /* Wide enough for the longest codes, the five-symbol numbers. */
+    grid-template-columns: repeat(auto-fill, minmax(10.5rem, 1fr));
+    gap: 0.75rem;
+    margin: 1.75rem 0 0;
+  }
+
+  .cell {
+    display: grid;
+    /* Cards in a row share a height; keep each one's content at the top so
+       the signals line up across the row. */
+    align-content: start;
+    gap: 0.75rem;
+    padding: 1rem 1.125rem 1.125rem;
+    border: 1px solid var(--cb-border);
+    border-radius: 16px;
+    background: var(--cb-surface);
+  }
+
+  dt {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 2.25rem;
+    line-height: 1;
+  }
+
+  .cell dd {
+    display: grid;
+    gap: 0.625rem;
+    margin: 0;
+    color: var(--cb-brand);
+  }
+
+  .spoken {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    color: var(--cb-muted-ground);
+  }
+
+  .lengths {
+    display: grid;
+    gap: 0.5rem;
+    margin: 1.5rem 0 0;
+    max-width: 34rem;
+  }
+
+  .lengths div {
+    display: grid;
+    grid-template-columns: 7.5rem 1fr;
+    align-items: baseline;
+    gap: 1rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--cb-separator);
+  }
+
+  .lengths dt {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    font-weight: 400;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--cb-muted-ground);
+  }
+
+  .lengths dd {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.75rem;
+    letter-spacing: 0.18em;
+  }
+
+  .sos {
+    display: grid;
+    justify-items: start;
+    gap: 1rem;
+    margin: 0.5rem 0 1.75rem;
+    padding: 1.75rem;
+    border: 1px solid var(--cb-border);
+    border-radius: 20px;
+    background: var(--cb-surface);
+    color: var(--cb-brand);
+  }
+
+  .sos-spoken {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--cb-muted-ground);
+  }
+
+  .timing {
+    width: 100%;
+    max-width: 34rem;
+    margin: 1.25rem 0 1.25rem;
+    border-collapse: collapse;
+  }
+
+  .timing th,
+  .timing td {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--cb-separator);
+    text-align: left;
+    font-size: 1rem;
+  }
+
+  .timing thead th {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 400;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--cb-muted-ground);
+  }
+
+  .timing tbody th {
+    font-weight: 500;
+  }
+
+  .timing td {
+    font-family: var(--font-mono);
+    color: var(--cb-brand);
+    white-space: nowrap;
+  }
+
+  @media (max-width: 640px) {
+    /*
+     * Two columns from 360px, one below that or when zoomed, rather than
+     * codes spilling out of their cards. A 6.5px unit makes the longest code
+     * (0, 19 units) 124px, which fits a 9.5rem card inside 0.75rem padding.
+     */
+    .chart {
+      grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
+      gap: 0.5rem;
+    }
+
+    .chart :global(.signal) {
+      --u: 0.40625rem;
+    }
+
+    .cell {
+      padding: 0.75rem;
+    }
+
+    .sos {
+      padding: 1.25rem;
+    }
+  }
+
+  @media print {
+    /*
+     * Six columns keep the alphabet on page one. With MorseSignal's 4px
+     * print unit and tighter padding, each card has room for its code:
+     * about 100px inside a card on Letter or A4, against 76px for 0.
+     */
+    .chart {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 0.25rem;
+    }
+
+    .cell {
+      gap: 0.5rem;
+      padding: 0.5rem 0.625rem 0.625rem;
+    }
+
+    dt {
+      font-size: 1.5rem;
+    }
+
+    .cell,
+    .sos {
+      border-color: #000;
+      background: none;
+      break-inside: avoid;
+    }
+
+    .cell dd,
+    .sos,
+    .timing td,
+    .spoken,
+    .sos-spoken,
+    .lengths dt {
+      color: #000;
+    }
+  }
+</style>

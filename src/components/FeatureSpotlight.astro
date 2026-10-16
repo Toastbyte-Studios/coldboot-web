@@ -81,6 +81,11 @@ const CARDS = {
             <p class="eyebrow">{feature.eyebrow}</p>
             <h3>{feature.heading}</h3>
             <p class="lede">{feature.body}</p>
+            {feature.guide && (
+              <a class="guide-link" href={feature.guide.href}>
+                {feature.guide.label}
+              </a>
+            )}
           </div>
         </div>
       );
@@ -280,6 +285,12 @@ const CARDS = {
     font-size: 1.125rem;
     line-height: 1.6;
     color: var(--cb-muted-ground);
+  }
+
+  .guide-link {
+    display: inline-block;
+    margin-top: 1rem;
+    font-weight: 600;
   }
 
   .head {

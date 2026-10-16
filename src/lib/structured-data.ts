@@ -87,3 +87,57 @@ export function buildHomeStructuredData(input: StructuredDataInput) {
 export function serializeJsonLd(data: unknown): string {
   return JSON.stringify(data).replace(/</g, '\\u003c');
 }
+
+export interface GuideStructuredDataInput {
+  site: URL;
+  siteName: string;
+  /** Public path of the guide, e.g. /morse-code */
+  path: string;
+  /** Short name, also the last breadcrumb. */
+  name: string;
+  description: string;
+  studioUrl: string;
+}
+
+/**
+ * A reference guide page: a WebPage that belongs to the ColdBoot WebSite,
+ * plus a BreadcrumbList (Home › Guide), which Google can show in place of
+ * the raw URL. The @ids match buildHomeStructuredData's, so the graphs join
+ * up across pages.
+ */
+export function buildGuideStructuredData(input: GuideStructuredDataInput) {
+  const home = new URL('/', input.site).href;
+  const url = new URL(input.path, input.site).href;
+
+  return {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'WebPage',
+        '@id': `${url}#webpage`,
+        url,
+        name: input.name,
+        description: input.description,
+        inLanguage: 'en',
+        isPartOf: { '@id': `${home}#website` },
+        // The page is about its topic; it mentions the app that carries it.
+        mentions: { '@id': `${home}#app` },
+        publisher: { '@id': new URL('#organization', input.studioUrl).href },
+        breadcrumb: { '@id': `${url}#breadcrumb` },
+      },
+      {
+        '@type': 'BreadcrumbList',
+        '@id': `${url}#breadcrumb`,
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: input.siteName,
+            item: home,
+          },
+          { '@type': 'ListItem', position: 2, name: input.name, item: url },
+        ],
+      },
+    ],
+  };
+}

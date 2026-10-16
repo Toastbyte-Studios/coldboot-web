@@ -1,0 +1,266 @@
+---
+/**
+ * Layout for reference guides (/morse-code, ...): header, breadcrumb, the
+ * page's own content, then what ColdBoot does with the topic and a waitlist
+ * form, then the footer.
+ *
+ * Title, description and breadcrumb name come from GUIDES in
+ * src/data/guides.ts, looked up by `path`, so a guide can't drift from the
+ * footer links, /llms.txt or its structured data.
+ *
+ * Slots:
+ *   default  the guide itself, as <section>s with <h2>s
+ *   app      what the ColdBoot tool does, shown above the waitlist form
+ */
+import SiteFooter from '../components/SiteFooter.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import WaitlistForm from '../components/WaitlistForm.astro';
+import { findGuide } from '../data/guides';
+import { SITE } from '../data/site';
+import { buildGuideStructuredData } from '../lib/structured-data';
+import Base from './Base.astro';
+import type { WaitlistSource } from '../lib/waitlist';
+
+interface Props {
+  path: `/${string}`;
+  /** The <h1>. */
+  heading: string;
+  /** One or two sentences under the heading: what this page gives you. */
+  lede: string;
+  /** The guide's own waitlist form source. */
+  waitlistId: WaitlistSource;
+}
+
+const { path, heading, lede, waitlistId } = Astro.props;
+const guide = findGuide(path);
+
+const structuredData = buildGuideStructuredData({
+  site: Astro.site!,
+  siteName: SITE.name,
+  path: guide.path,
+  name: guide.name,
+  description: guide.description,
+  studioUrl: SITE.studio.url,
+});
+---
+
+<Base
+  title={guide.title}
+  description={guide.description}
+  structuredData={structuredData}
+>
+  <SiteHeader />
+
+  <main class="guide wrap">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <ol>
+        <li>
+          <a href="/">{SITE.name}</a>
+        </li>
+        <li>
+          <span aria-current="page">{guide.name}</span>
+        </li>
+      </ol>
+    </nav>
+
+    <header class="intro">
+      <p class="eyebrow">Field reference</p>
+      <h1>{heading}</h1>
+      <p class="lede">{lede}</p>
+    </header>
+
+    <div class="body">
+      <slot />
+    </div>
+
+    <section class="app" aria-labelledby="app-heading">
+      <p class="eyebrow">Offline in {SITE.name}</p>
+      <h2 id="app-heading">{guide.tool}, with no signal.</h2>
+      <div class="app-copy">
+        <slot name="app" />
+      </div>
+      <WaitlistForm id={waitlistId} />
+    </section>
+  </main>
+
+  <SiteFooter />
+</Base>
+
+<style>
+  .guide {
+    padding-block: 2rem 6rem;
+  }
+
+  .crumbs ol {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--cb-muted-ground);
+  }
+
+  .crumbs li + li::before {
+    content: '/';
+    margin-right: 0.5rem;
+    color: var(--cb-separator);
+  }
+
+  .intro {
+    max-width: 46rem;
+    margin-top: 2.5rem;
+  }
+
+  .eyebrow {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--cb-brand);
+  }
+
+  h1 {
+    margin: 1rem 0 0;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(3rem, 7vw, 5rem);
+    line-height: 0.92;
+    text-transform: uppercase;
+    text-wrap: balance;
+  }
+
+  .lede {
+    margin: 1.5rem 0 0;
+    max-width: 40rem;
+    font-size: 1.25rem;
+    line-height: 1.55;
+  }
+
+  /* Prose inside the guide, which arrives through the slot. */
+  .body :global(section) {
+    margin-top: 4.5rem;
+  }
+
+  .guide :global(h2) {
+    margin: 0 0 1rem;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(1.875rem, 3.4vw, 2.5rem);
+    line-height: 1.02;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  .body :global(p),
+  .body :global(li),
+  .app-copy :global(p),
+  .app-copy :global(li) {
+    max-width: 42rem;
+    font-size: 1.0625rem;
+    line-height: 1.65;
+  }
+
+  .body :global(p),
+  .app-copy :global(p) {
+    margin: 0 0 1rem;
+  }
+
+  .body :global(ul),
+  .app-copy :global(ul) {
+    margin: 0 0 1rem;
+    padding-left: 1.25rem;
+  }
+
+  .body :global(li + li),
+  .app-copy :global(li + li) {
+    margin-top: 0.5rem;
+  }
+
+  .body :global(li::marker),
+  .app-copy :global(li::marker) {
+    color: var(--cb-brand);
+  }
+
+  .app {
+    display: grid;
+    gap: 1.25rem;
+    margin-top: 6rem;
+    padding: 2rem;
+    border: 1px solid var(--cb-border);
+    border-radius: 24px;
+    background: var(--cb-surface);
+  }
+
+  .app h2 {
+    margin-bottom: 0;
+  }
+
+  @media (max-width: 640px) {
+    .guide {
+      padding-block: 1rem 4rem;
+    }
+
+    .intro {
+      margin-top: 1.75rem;
+    }
+
+    .lede {
+      font-size: 1.0625rem;
+    }
+
+    .body :global(section) {
+      margin-top: 3.5rem;
+    }
+
+    .app {
+      padding: 1.25rem;
+    }
+  }
+
+  /*
+   * Printed, a guide is a reference sheet: no header, footer, forms or
+   * banner, and black on white whatever the theme.
+   */
+  @media print {
+    :global(.site-header),
+    :global(.site-footer),
+    :global(#consent-banner),
+    .crumbs,
+    .app {
+      display: none !important;
+    }
+
+    :global(html),
+    :global(body) {
+      background: #fff !important;
+      color: #000 !important;
+    }
+
+    .guide {
+      padding: 0;
+    }
+
+    .eyebrow {
+      color: #000;
+    }
+
+    /* Sections may split across pages; their cards and rows keep together. */
+    .body :global(section) {
+      margin-top: 1.5rem;
+    }
+
+    .guide :global(h2) {
+      break-after: avoid;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+    }
+  }
+</style>
