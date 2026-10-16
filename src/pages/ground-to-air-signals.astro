@@ -1,0 +1,404 @@
+---
+/**
+ * /ground-to-air-signals: the symbols survivors lay on the ground for search
+ * aircraft, for people searching for them, that also shows ColdBoot carries
+ * them offline.
+ *
+ * The symbols, meanings and the pilot's reply are the app's data
+ * (src/data/ground-signals.ts, which names the sources). The size and
+ * materials guidance is ICAO Annex 12, Appendix 2.3. The "in ColdBoot"
+ * section was checked against the app: SignalMirror/GroundToAirSignalsScreen
+ * (both codes, ICAO first, and the reply from the air), its place in
+ * COMMUNICATION_TOOLS, the synthetic_ground_to_air entry in
+ * utils/ragSearch.ts, and the Emergency guide's "Ground-to-Air Symbols"
+ * entry, which links to the screen.
+ */
+import GroundSymbol from '../components/GroundSymbol.astro';
+import {
+  AIR_REPLIES,
+  ICAO_MATERIALS,
+  ICAO_SIGNALS,
+  MIN_SIZE,
+  OLDER_SIGNALS,
+} from '../data/ground-signals';
+import Guide from '../layouts/Guide.astro';
+---
+
+<Guide
+  path="/ground-to-air-signals"
+  heading="Ground-to-air signals"
+  lede="The symbols to lay out on open ground so a search aircraft can read them: the five in today's international code, how big to make them, how a pilot replies, and what the older survival-card symbols mean."
+  waitlistId="signals"
+>
+  <section aria-labelledby="icao">
+    <h2 id="icao">The international code</h2>
+    <p>
+      These five symbols are the survivors' code in ICAO Annex 12, the
+      international standard that search and rescue crews work to. If you learn
+      only one set, learn this one.
+    </p>
+    <dl class="codes">
+      {ICAO_SIGNALS.map((s) => (
+        <div class="code">
+          <dt>
+            <span class="tile">
+              <GroundSymbol symbol={s.symbol} />
+            </span>
+            <span class="meaning">{s.meaning}</span>
+          </dt>
+          <dd>{s.materials}.</dd>
+        </div>
+      ))}
+    </dl>
+  </section>
+
+  <section aria-labelledby="size">
+    <h2 id="size">Make them big enough to see</h2>
+    <div class="size">
+      <p class="stat">
+        <span class="stat-value">{MIN_SIZE.metres} m</span>
+        <span class="stat-label">
+          ({MIN_SIZE.feet} ft) long, at least. Bigger is easier to spot.
+        </span>
+      </p>
+      <div>
+        <p>
+          ICAO asks for each symbol to be at least {MIN_SIZE.metres} metres (
+          {MIN_SIZE.feet} feet) long and as conspicuous as possible. Lay it in a
+          clearing with as much open sky above it as you can find, in a material
+          that stands out against the ground: dark on snow or sand, light on
+          soil or grass.
+        </p>
+        <p>If you have nothing better, ICAO suggests:</p>
+        <ul>
+          {ICAO_MATERIALS.map((m) => (
+            <li>{m}</li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="replies">
+    <h2 id="replies">How a pilot replies</h2>
+    <p>
+      Once an aircraft has seen your signal, the pilot tells you whether it was
+      understood:
+    </p>
+    <dl class="replies">
+      {AIR_REPLIES.map((r) => (
+        <div>
+          <dt>{r.when}</dt>
+          <dd>
+            <span class="reply">{r.reply}</span>
+            <span class="reply-meaning">{r.meaning}</span>
+          </dd>
+        </div>
+      ))}
+    </dl>
+  </section>
+
+  <section aria-labelledby="older">
+    <h2 id="older">The older code</h2>
+    <p>
+      Many survival cards and older manuals print a longer emergency code, as on
+      the US Forest Service's "Visual Emergency Signals" card. It isn't part of
+      today's international code, so a pilot may not know it. Use the five
+      symbols above wherever they cover what you need.
+    </p>
+    <p class="caution">
+      <strong>X has changed meaning.</strong> In the older code it meant "unable
+      to proceed". Today it means you need medical help.
+    </p>
+    <dl class="older">
+      {OLDER_SIGNALS.map((s) => (
+        <div>
+          <dt>
+            <GroundSymbol symbol={s.symbol} />
+          </dt>
+          <dd>{s.meaning}</dd>
+        </div>
+      ))}
+    </dl>
+  </section>
+
+  <Fragment slot="app">
+    <p>
+      ColdBoot's Ground-to-Air Signals tool keeps both codes on your phone, the
+      international one first and the older one labelled, with how big to make
+      each symbol and how a pilot replies. It sits in the Comms module with
+      Morse Code and the Digital Whistle, and it opens from the Emergency
+      guide's entry on ground-to-air symbols and from the app's search.
+    </p>
+  </Fragment>
+</Guide>
+
+<style>
+  .codes {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+    gap: 0.75rem;
+    margin: 1.75rem 0 0;
+  }
+
+  .code {
+    display: grid;
+    align-content: start;
+    gap: 0.75rem;
+    padding: 1rem 1rem 1.25rem;
+    border: 1px solid var(--cb-border);
+    border-radius: 16px;
+    background: var(--cb-surface);
+  }
+
+  .code dt {
+    display: grid;
+    gap: 1rem;
+  }
+
+  /* The symbol on a patch of "ground", as a pilot would see it. */
+  .tile {
+    display: grid;
+    place-items: center;
+    aspect-ratio: 16 / 10;
+    border-radius: 10px;
+    background: var(--cb-secondary-container);
+    color: var(--cb-on-secondary-container);
+    font-size: 5rem;
+  }
+
+  .meaning {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.5rem;
+    line-height: 1.05;
+  }
+
+  .code dd {
+    margin: 0;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+    color: var(--cb-muted-ground);
+  }
+
+  .size {
+    display: grid;
+    grid-template-columns: minmax(0, 15rem) minmax(0, 1fr);
+    gap: 1rem 2.5rem;
+    align-items: start;
+  }
+
+  .size .stat {
+    display: grid;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 1.25rem 1.25rem 1.5rem;
+    border: 1px solid var(--cb-border);
+    border-radius: 16px;
+    background: var(--cb-surface);
+  }
+
+  .stat-value {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 4.5rem;
+    line-height: 0.9;
+    color: var(--cb-brand);
+  }
+
+  .size .stat-label {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    letter-spacing: 0.04em;
+  }
+
+  .replies {
+    display: grid;
+    gap: 0.5rem;
+    max-width: 44rem;
+    margin: 1.5rem 0 0;
+  }
+
+  .replies div {
+    display: grid;
+    grid-template-columns: 8rem minmax(0, 1fr);
+    gap: 0.25rem 1rem;
+    padding: 1rem 1.25rem;
+    border: 1px solid var(--cb-border);
+    border-radius: 14px;
+    background: var(--cb-surface);
+  }
+
+  .replies dt {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--cb-muted-ground);
+    padding-top: 0.2rem;
+  }
+
+  .replies dd {
+    display: grid;
+    gap: 0.25rem;
+    margin: 0;
+  }
+
+  .reply {
+    font-size: 1.0625rem;
+    line-height: 1.45;
+  }
+
+  .reply-meaning {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.25rem;
+    color: var(--cb-brand);
+  }
+
+  .caution {
+    padding: 1rem 1.25rem;
+    border-left: 3px solid var(--cb-brand);
+    border-radius: 0 12px 12px 0;
+    background: var(--cb-surface);
+  }
+
+  .older {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+    gap: 0.5rem;
+    max-width: 56rem;
+    margin: 1.5rem 0 0;
+  }
+
+  .older div {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--cb-border);
+    border-radius: 14px;
+  }
+
+  .older dt {
+    flex: none;
+    min-width: 3.25rem;
+    font-size: 2.25rem;
+    text-align: center;
+    color: var(--cb-muted-ground);
+  }
+
+  .older dd {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.35;
+  }
+
+  @media (max-width: 640px) {
+    .codes {
+      grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
+      gap: 0.5rem;
+    }
+
+    .code {
+      padding: 0.75rem 0.75rem 1rem;
+    }
+
+    .tile {
+      font-size: 3.75rem;
+    }
+
+    .meaning {
+      font-size: 1.25rem;
+    }
+
+    .size {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .replies div,
+    .older {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  @media print {
+    .codes {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 0.25rem;
+    }
+
+    .code {
+      gap: 0.375rem;
+      padding: 0.5rem;
+    }
+
+    .tile {
+      font-size: 2.75rem;
+      background: none;
+      border: 1px solid #000;
+    }
+
+    .meaning {
+      font-size: 1rem;
+    }
+
+    .code dd {
+      font-size: 0.6875rem;
+    }
+
+    .stat-value {
+      font-size: 3rem;
+    }
+
+    .size .stat {
+      padding: 0.75rem;
+    }
+
+    .replies div {
+      padding: 0.5rem 0.75rem;
+    }
+
+    .older {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 0.25rem;
+    }
+
+    /* Stacked, so the longest meaning fits a fifth of the page. */
+    .older div {
+      flex-direction: column;
+      gap: 0.25rem;
+      padding: 0.5rem;
+      text-align: center;
+    }
+
+    .older dt {
+      min-width: 0;
+      font-size: 1.75rem;
+    }
+
+    .older dd {
+      font-size: 0.8125rem;
+    }
+
+    .code,
+    .size .stat,
+    .replies div,
+    .caution,
+    .older div {
+      border-color: #000;
+      background: none;
+      break-inside: avoid;
+    }
+
+    .tile,
+    .code dd,
+    .stat-value,
+    .replies dt,
+    .reply-meaning,
+    .older dt {
+      color: #000;
+    }
+  }
+</style>

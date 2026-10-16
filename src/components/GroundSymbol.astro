@@ -1,0 +1,74 @@
+---
+/**
+ * One ground-to-air symbol, drawn at the size of the surrounding text.
+ *
+ * Letters are set in the display face. The arrow and the triangle are drawn
+ * as SVG instead, because the webfont subsets don't carry → or △ and a
+ * fallback font's glyph would look nothing like the letters beside it. The
+ * strokes are sized to match Barlow Condensed Bold's stems.
+ *
+ * Each symbol gets a spoken name ("Arrow", "Triangle", "J L"), so a screen
+ * reader doesn't read "LL" as a word.
+ */
+interface Props {
+  symbol: string;
+}
+
+const { symbol } = Astro.props;
+
+const SPOKEN: Record<string, string> = {
+  '→': 'Arrow',
+  '△': 'Triangle',
+};
+const spoken = SPOKEN[symbol] ?? [...symbol].join(' ');
+---
+
+<span class="symbol">
+  {symbol === '→' ? (
+    <svg viewBox="0 0 100 70" aria-hidden="true" class="arrow">
+      <path d="M4 35H88M60 8l29 27-29 27" />
+    </svg>
+  ) : symbol === '△' ? (
+    <svg viewBox="0 0 84 70" aria-hidden="true" class="triangle">
+      <path d="M42 14 69 58H15Z" />
+    </svg>
+  ) : (
+    <span class="letters" aria-hidden="true">
+      {symbol}
+    </span>
+  )}
+  <span class="visually-hidden">{spoken}</span>
+</span>
+
+<style>
+  .symbol {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+  }
+
+  .letters {
+    font-family: var(--font-display);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+
+  svg {
+    /* Barlow Condensed's cap height is about 0.7em. */
+    height: 0.7em;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 11;
+    stroke-linejoin: miter;
+  }
+
+  .arrow {
+    width: 1em;
+    stroke-linecap: butt;
+  }
+
+  .triangle {
+    width: 0.84em;
+  }
+</style>

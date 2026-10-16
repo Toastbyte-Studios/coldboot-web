@@ -43,6 +43,15 @@ export const GUIDES: readonly Guide[] = [
       'ColdBoot app.',
     tool: 'NATO Phonetic',
   },
+  {
+    path: '/ground-to-air-signals',
+    name: 'Ground-to-air signals',
+    title: 'Ground-to-Air Emergency Signals and Symbols | ColdBoot',
+    description:
+      'The ICAO ground-to-air code for signaling rescue aircraft: what V, X, ' +
+      'N, Y and the arrow mean, how big to make them and how pilots reply.',
+    tool: 'Ground-to-Air Signals',
+  },
 ];
 
 export function findGuide(path: string): Guide {
