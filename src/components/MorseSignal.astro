@@ -34,7 +34,7 @@ const { morse, size = 'md' } = Astro.props;
   }
 
   .lg {
-    --u: 0.75rem;
+    --u: clamp(0.25rem, 2.5vw, 0.75rem);
   }
 
   .dot,
@@ -58,6 +58,10 @@ const { morse, size = 'md' } = Astro.props;
   }
 
   @media print {
+    .signal {
+      --u: 0.2rem;
+    }
+
     .dot,
     .dash {
       /* Backgrounds are often dropped when printing; borders aren't. */
