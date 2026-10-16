@@ -1,6 +1,14 @@
 import assert from 'node:assert/strict';
 import { existsSync } from 'node:fs';
 import { describe, it } from 'node:test';
+import {
+  AIR_ACKNOWLEDGEMENT,
+  AIR_REPLIES,
+  GROUND_SIGNALS,
+  ICAO_SIGNALS,
+  MIN_SIZE,
+  OLDER_SIGNALS,
+} from '../src/data/ground-signals.ts';
 import { findGuide, GUIDES } from '../src/data/guides.ts';
 import {
   lettersByLength,
@@ -109,6 +117,42 @@ describe('NATO_ALPHABET', () => {
   });
 });
 
+describe('GROUND_SIGNALS', () => {
+  it('has the five ICAO symbols first, in the Annex order', () => {
+    assert.deepEqual(
+      ICAO_SIGNALS.map((s) => s.symbol),
+      ['V', 'X', 'N', 'Y', '→'],
+    );
+    assert.deepEqual(GROUND_SIGNALS, [...ICAO_SIGNALS, ...OLDER_SIGNALS]);
+  });
+
+  it('gives V and X their ICAO meanings, not the older ones', () => {
+    const meaning = (sym: string) =>
+      GROUND_SIGNALS.find((s) => s.symbol === sym)?.meaning;
+    assert.equal(meaning('V'), 'Require assistance');
+    assert.equal(meaning('X'), 'Require medical assistance');
+    assert.match(meaning('△') ?? '', /^Probably/);
+  });
+
+  it('has no duplicate symbols', () => {
+    const symbols = GROUND_SIGNALS.map((s) => s.symbol);
+    assert.equal(new Set(symbols).size, symbols.length);
+  });
+
+  it('uses the ICAO minimum size', () => {
+    assert.deepEqual(MIN_SIZE, { metres: 2.5, feet: 8 });
+  });
+
+  it("lays out the same replies as the app's sentence", () => {
+    assert.match(AIR_ACKNOWLEDGEMENT, /rocks the wings by day/);
+    assert.match(AIR_ACKNOWLEDGEMENT, /twice at night/);
+    assert.deepEqual(
+      AIR_REPLIES.map((r) => r.meaning),
+      ['Understood', 'Understood', 'Not understood'],
+    );
+  });
+});
+
 describe('buildGuideStructuredData', () => {
   const data = buildGuideStructuredData({
     site: new URL('https://coldboot.app'),
@@ -140,7 +184,7 @@ describe('buildGuideStructuredData', () => {
 });
 
 describe('guide waitlist sources', () => {
-  for (const source of ['morse', 'nato'] as const) {
+  for (const source of ['morse', 'nato', 'signals'] as const) {
     it(`accepts the ${source} form`, () => {
       const form = new FormData();
       form.set('email', 'ada@example.com');
