@@ -5,9 +5,9 @@ name: Bump version on Dependabot PRs
 #
 # - When a Dependabot PR is opened or updated, it sets the version to main's
 #   version + 1 patch (e.g. 0.14.0 -> 0.14.1) and pushes that commit to the PR.
-# - After anything merges to main, it re-checks the other open Dependabot PRs.
-#   If two were both bumped to 0.14.1 and one merged, the other is updated to
-#   main and bumped to 0.14.2, so every merge still gets its own release tag.
+# - On every eligible run, it re-checks all open Dependabot PRs. If two were
+#   both bumped to 0.14.1 and one merged, the other is updated to main and
+#   bumped to 0.14.2.
 #
 # Safety: this uses pull_request_target (so the token can push), but it never
 # runs code from the PR. It only reads and edits the version field in
@@ -31,17 +31,15 @@ permissions:
   contents: write
   pull-requests: write
 
-# Never let two runs push to the same PR at once.
-concurrency:
-  group: dependabot-version-bump
-  cancel-in-progress: false
-
 jobs:
   bump:
     if: >-
       github.event_name != 'pull_request_target' ||
       (github.event.pull_request.user.login == 'dependabot[bot]' &&
        github.event.pull_request.head.repo.full_name == github.repository)
+    concurrency:
+      group: dependabot-version-bump
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     steps:
       # Checks out main (trusted code), never the PR's code.
@@ -54,20 +52,14 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           BASE: ${{ github.event.repository.default_branch }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           # The node -e snippets use JS template literals, not shell expansion.
-          # shellcheck disable=SC2016
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
 
-          if [ -n "${PR_NUMBER:-}" ]; then
-            prs="$PR_NUMBER"
-          else
-            prs=$(gh pr list --repo "$GITHUB_REPOSITORY" --base "$BASE" --state open \
-              --author 'app/dependabot' --json number --jq '.[].number')
-          fi
+          prs=$(gh pr list --repo "$GITHUB_REPOSITORY" --base "$BASE" --state open \
+            --author 'app/dependabot' --json number --jq '.[].number')
           if [ -z "$prs" ]; then
             echo 'No open Dependabot PRs.'
             exit 0
@@ -85,7 +77,9 @@ jobs:
               'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>console.log(JSON.parse(s).version))')
 
             # Exit 0 = already ahead of main, nothing to do; 1 = needs a bump.
-            if node -e '
+            if
+              # shellcheck disable=SC2016
+              node -e '
               const parse = (v) => {
                 const m = /^(\d+)\.(\d+)\.(\d+)$/.exec(v);
                 if (!m) throw new Error(`Unsupported version "${v}" (expected x.y.z)`);
@@ -118,12 +112,14 @@ jobs:
               fi
             fi
 
+            # shellcheck disable=SC2016
             next=$(node -e '
               const [maj, min, pat] = process.argv[1].split(".").map(Number);
               console.log(`${maj}.${min}.${pat + 1}`);
             ' "$base_version")
 
             # Edit the version fields in place so the file formatting is untouched.
+            # shellcheck disable=SC2016
             node -e '
               const fs = require("fs");
               const next = process.argv[1];

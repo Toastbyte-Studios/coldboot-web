@@ -59,7 +59,9 @@ Bump `version` in `package.json` on every PR, following semver:
 - Major — breaking changes to deploy config or the waitlist data shape
 
 `.github/workflows/require-version-bump.yml` fails the PR if the version
-matches `main`.
+is not newer than `main` or the merge-queue base. Require the `Require version
+bump / require-version-bump` check in the `main` merge queue so concurrent PRs
+cannot release the same version.
 
 Dependabot PRs are bumped for you: `dependabot-version-bump.yml` pushes a patch
 bump onto each one, and after every merge it re-bumps any other open Dependabot
