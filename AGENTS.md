@@ -61,6 +61,11 @@ Bump `version` in `package.json` on every PR, following semver:
 `.github/workflows/require-version-bump.yml` fails the PR if the version
 matches `main`.
 
+Dependabot PRs are bumped for you: `dependabot-version-bump.yml` pushes a patch
+bump onto each one, and after every merge it re-bumps any other open Dependabot
+PR whose version no longer beats `main`. If it comments that a PR conflicts,
+comment `@dependabot recreate` on that PR.
+
 Merging to `main` is a release: `deploy.yml` deploys to production and
 `tag-and-release.yml` tags `v<version>` with a GitHub release. So `main` must
 always be deployable, and the version you bump to is the version that ships.
