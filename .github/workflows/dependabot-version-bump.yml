@@ -124,17 +124,18 @@ jobs:
               const fs = require("fs");
               const next = process.argv[1];
               const pkg = fs.readFileSync("package.json", "utf8");
-              const old = JSON.parse(pkg).version;
               const field = /("version"\s*:\s*")[^"]*(")/;
               fs.writeFileSync("package.json", pkg.replace(field, `$1${next}$2`));
               if (fs.existsSync("package-lock.json")) {
                 let lock = fs.readFileSync("package-lock.json", "utf8");
                 const parsed = JSON.parse(lock);
+                const lockOld = parsed.version;
                 // The first two "version" keys in a lockfile are the root
-                // package and packages[""]. Only touch them if they match.
-                if (parsed.version === old && parsed.packages?.[""]?.version === old) {
+                // package and packages[""]. Set both, even if they had drifted
+                // from package.json, but only if they agree with each other.
+                if (typeof lockOld === "string" && parsed.packages?.[""]?.version === lockOld) {
                   lock = lock.replace(field, `$1${next}$2`).replace(
-                    new RegExp(`("version"\\s*:\\s*")${old.replaceAll(".", "\\.")}(")`),
+                    new RegExp(`("version"\\s*:\\s*")${lockOld.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(")`),
                     `$1${next}$2`,
                   );
                   fs.writeFileSync("package-lock.json", lock);
