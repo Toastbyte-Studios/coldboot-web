@@ -173,6 +173,11 @@ scripts/          # generate-icons.mjs: PNG icons from the brand icon
   agents or other tracking data. Never log an email address.
 - Keep validation in `src/lib/waitlist.ts` with tests in `test/`; the endpoint
   should stay a thin wrapper around it.
+- The endpoint is throttled by the `WAITLIST_LIMITER` rate limiting binding
+  in `wrangler.jsonc` (5 posts a minute per caller, keyed by a hash of the
+  address, failing open). It slows scripted signups; it does not prove an
+  address belongs to whoever typed it. That needs a confirmation email, so
+  add double opt-in when an email provider is chosen.
 - Schema changes go in a new numbered file in `migrations/`; never edit one
   that has been applied.
 
