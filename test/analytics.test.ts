@@ -193,6 +193,13 @@ describe('sanitizeParams', () => {
       'retry',
     );
     assert.deepEqual(
+      sanitizeParams('waitlist_form_viewed', {
+        form: 'morse',
+        email: 'private@example.com',
+      }),
+      { form: 'morse' },
+    );
+    assert.deepEqual(
       sanitizeParams('waitlist_signup_failed', {
         form: 'closing',
         reason: 'server_error',
@@ -218,6 +225,7 @@ describe('sanitizeParams', () => {
       sanitizeParams('waitlist_signup_succeeded', { form: 'untrusted' }),
       null,
     );
+    assert.equal(sanitizeParams('waitlist_form_viewed', {}), null);
   });
 });
 

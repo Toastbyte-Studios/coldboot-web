@@ -93,7 +93,7 @@ export const WAITLIST_PROMISE = {
 
 export const PRIVACY = {
   // Update whenever the policy's substance changes.
-  lastUpdated: '2026-10-15',
+  lastUpdated: '2026-11-14',
 } as const;
 
 /** The readout strip under the hero. */

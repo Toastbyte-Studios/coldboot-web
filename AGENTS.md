@@ -201,6 +201,17 @@ design in React. When the approach changes in one, check the others.
   `test/analytics.test.ts`. It needs the `ANALYTICS_GA4_MEASUREMENT_ID` and
   `ANALYTICS_GA4_API_SECRET` Worker secrets (`.dev.vars.example`), and
   answers ok without sending anything until both are set.
+- GA4 only hears from visitors who accepted the banner, so its signup
+  counts are a floor. For totals and where signups came from, use
+  `npm run report:waitlist`, which counts the `source` column in D1. GA4 is
+  for rates among consenting visitors: `waitlist_form_viewed` →
+  `waitlist_signup_started` → `waitlist_signup_succeeded`, per form.
+- `test/privacy-events.test.ts` fails if the events in
+  `analytics-events.ts` and the list in the privacy policy differ, or if an
+  event has no rule in the relay's `sanitizeParams`.
+- Events sent through the relay do not join the visitor's GA4 session: the
+  relay has no GA client ID, only a derived one. Don't try to read it out of
+  Zaraz's cookies; their format isn't a documented contract.
 - Never put an email address, or anything derived from one, in an event.
 - To track another outbound link, give it `data-outbound="<destination>"` and
   add the destination to `ANALYTICS_OUTBOUND_DESTINATIONS` in
