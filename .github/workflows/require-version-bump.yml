@@ -20,6 +20,19 @@ jobs:
         with:
           ref: ${{ github.event_name == 'merge_group' && github.event.merge_group.head_sha || format('refs/pull/{0}/merge', github.event.pull_request.number) }}
           fetch-depth: 0
+          # This job runs on pull_request_target, so the ref above is
+          # untrusted code from the pull request (possibly a fork) checked
+          # out by a workflow that runs with this repository's token.
+          # Two guards keep that safe:
+          #   - only package.json is written to disk, so there is nothing
+          #     from the PR to execute;
+          #   - the token is not left in .git/config for later steps.
+          # Never add a step here that installs dependencies or runs a
+          # script from the checkout (npm ci, npm run ...). If the check
+          # ever needs that, move it to a pull_request workflow instead.
+          sparse-checkout: package.json
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
 
       - name: Ensure package version is newer than the merge base
         env:
@@ -29,7 +42,10 @@ jobs:
           if [ -n "${BASE_SHA:-}" ]; then
             base_ref="$BASE_SHA"
           else
-            git fetch origin "$BASE_REF" --depth=1
+            # fetch-depth: 0 already fetched every branch, so this refresh
+            # is best effort: without stored credentials it only succeeds
+            # while the repository is public.
+            git fetch origin "$BASE_REF" --depth=1 || true
             base_ref="origin/$BASE_REF"
           fi
 
