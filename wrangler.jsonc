@@ -35,4 +35,20 @@
       "migrations_dir": "migrations",
     },
   ],
+  // Throttles /api/subscribe: at most 5 form posts a minute from one network
+  // address (the endpoint passes a hash of it as the key, never the address
+  // itself). Counts are held per Cloudflare location and are approximate, so
+  // this slows a script down rather than stopping a determined one; see
+  // AGENTS.md > Waitlist. `period` can only be 10 or 60. `namespace_id` just
+  // has to be unique among this Cloudflare account's rate limiters.
+  "ratelimits": [
+    {
+      "name": "WAITLIST_LIMITER",
+      "namespace_id": "4101",
+      "simple": {
+        "limit": 5,
+        "period": 60,
+      },
+    },
+  ],
 }

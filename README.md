@@ -23,6 +23,10 @@ The forms post to `/api/subscribe`, which runs on the Worker and writes to a
 Cloudflare D1 database bound as `DB`. It stores the address, the time, and
 which form it came from; nothing else. The schema lives in `migrations/`.
 
+The endpoint is rate limited by the `WAITLIST_LIMITER` binding in
+`wrangler.jsonc`: five posts a minute per caller. `wrangler deploy` creates
+it; there is nothing to set up in the dashboard.
+
 To try the whole flow locally:
 
 ```sh
