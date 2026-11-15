@@ -1,5 +1,6 @@
 import { env } from 'cloudflare:workers';
-import { parseSubmission } from '../../lib/waitlist';
+import { getClientIp, sha256Hex } from '../../lib/analytics-relay';
+import { isSignupAllowed, parseSubmission } from '../../lib/waitlist';
 import type { APIRoute } from 'astro';
 
 // Runs on the Worker for every request; everything else on the site is static.
@@ -11,6 +12,9 @@ const JOINED = '/joined';
 const TRY_AGAIN = {
   invalid: '/join-error?reason=invalid_email',
   server: '/join-error?reason=server_error',
+  // /join-error reports any reason it doesn't know as server_error, so this
+  // adds nothing to the analytics vocabulary or the privacy policy's list.
+  throttled: '/join-error?reason=rate_limited',
 } as const;
 
 /**
@@ -18,9 +22,19 @@ const TRY_AGAIN = {
  * with JavaScript disabled and a refresh can't resubmit the form.
  *
  * Astro's `security.checkOrigin` (on by default) rejects cross-site form
- * posts before this handler runs.
+ * posts before this handler runs. That only stops browsers: a script can
+ * send any Origin it likes, which is what the rate limit below is for.
  */
 export const POST: APIRoute = async ({ request, redirect }) => {
+  // Before any other work, so a script posting in a loop is turned away
+  // cheaply. The key is a truncated hash of the caller's address: the
+  // limiter needs something stable per caller, not the address itself, and
+  // nothing here is stored with a signup.
+  const rateKey = (await sha256Hex(getClientIp(request.headers))).slice(0, 16);
+  if (!(await isSignupAllowed(env.WAITLIST_LIMITER, rateKey))) {
+    return redirect(TRY_AGAIN.throttled, 303);
+  }
+
   let form: FormData;
   try {
     form = await request.formData();

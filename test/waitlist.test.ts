@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import {
   HONEYPOT_FIELD,
+  isSignupAllowed,
   isValidEmail,
   MAX_EMAIL_LENGTH,
   normalizeEmail,
@@ -102,5 +103,34 @@ describe('parseSubmission', () => {
         source: 'hero',
       });
     }
+  });
+});
+
+describe('isSignupAllowed', () => {
+  it('passes the key to the limiter and returns its answer', async () => {
+    const keys: string[] = [];
+    const limiter = (success: boolean) => ({
+      limit: async ({ key }: { key: string }) => {
+        keys.push(key);
+        return { success };
+      },
+    });
+
+    assert.equal(await isSignupAllowed(limiter(true), 'abc'), true);
+    assert.equal(await isSignupAllowed(limiter(false), 'abc'), false);
+    assert.deepEqual(keys, ['abc', 'abc']);
+  });
+
+  it('allows the signup when there is no limiter binding', async () => {
+    assert.equal(await isSignupAllowed(undefined, 'abc'), true);
+  });
+
+  it('allows the signup when the limiter throws', async () => {
+    const broken = {
+      limit: async () => {
+        throw new Error('limiter unavailable');
+      },
+    };
+    assert.equal(await isSignupAllowed(broken, 'abc'), true);
   });
 });
