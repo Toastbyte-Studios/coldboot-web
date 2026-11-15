@@ -134,11 +134,13 @@ const honeypotId = `${id}-${HONEYPOT_FIELD}`;
       observer.observe(form);
     }
 
-    document.addEventListener(ANALYTICS_CONSENT_CHANGED_EVENT, () => {
+    const reportSeen = () => {
       for (const form of seen) {
         report(form);
       }
-    });
+    };
+    document.addEventListener(ANALYTICS_CONSENT_CHANGED_EVENT, reportSeen);
+    document.addEventListener('zarazConsentReconciled', reportSeen);
   }
 </script>
 
