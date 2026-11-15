@@ -85,3 +85,33 @@ export function parseSubmission(form: FormData): WaitlistSubmission {
 
   return { ok: true, email, source };
 }
+
+/**
+ * The part of a Workers Rate Limiting binding the endpoint uses. Declared
+ * here so the check below can be tested with a stand-in.
+ */
+export interface SignupLimiter {
+  limit(options: { key: string }): Promise<{ success: boolean }>;
+}
+
+/**
+ * Whether this signup attempt is within the rate limit for `key`.
+ *
+ * Fails open: with no binding (a local build without one) or a limiter that
+ * throws, the signup goes ahead. Turning away a real person because the
+ * throttle broke would cost more than letting a few extra posts through.
+ */
+export async function isSignupAllowed(
+  limiter: SignupLimiter | undefined,
+  key: string,
+): Promise<boolean> {
+  if (!limiter) {
+    return true;
+  }
+  try {
+    const { success } = await limiter.limit({ key });
+    return success;
+  } catch {
+    return true;
+  }
+}
