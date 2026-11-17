@@ -68,23 +68,79 @@ const honeypotId = `${id}-${HONEYPOT_FIELD}`;
 
 <script>
   import {
+    ANALYTICS_CONSENT_CHANGED_EVENT,
     ANALYTICS_EVENTS,
+    canTrackEvent,
     markWaitlistSubmitted,
     trackClientEvent,
   } from '../lib/analytics-client';
 
+  const forms = [
+    ...document.querySelectorAll<HTMLFormElement>('form.waitlist'),
+  ];
+
+  function sourceOf(form: HTMLFormElement): string {
+    const source = new FormData(form).get('source');
+    return typeof source === 'string' ? source : 'unknown';
+  }
+
   // `submit` only fires once the browser's own validation has passed, so this
   // counts real attempts. The form still posts normally; nothing here waits.
-  for (const form of document.querySelectorAll<HTMLFormElement>(
-    'form.waitlist',
-  )) {
+  for (const form of forms) {
     form.addEventListener('submit', () => {
-      const source = new FormData(form).get('source');
-      const name = typeof source === 'string' ? source : 'unknown';
+      const name = sourceOf(form);
       trackClientEvent(ANALYTICS_EVENTS.waitlistSignupStarted, { form: name });
       // Lets /joined or /join-error count the outcome once, for this tab.
       markWaitlistSubmitted(name);
     });
+  }
+
+  // waitlist_form_viewed: once per form per page load, when at least half of
+  // it is on screen. The hero form is usually in view before the visitor has
+  // answered the consent banner, so a form that was seen too early is kept
+  // and reported if they then say yes. Nothing is sent, or stored, on a no.
+  if ('IntersectionObserver' in window) {
+    const seen = new Set<HTMLFormElement>();
+    const reported = new Set<HTMLFormElement>();
+
+    const report = (form: HTMLFormElement) => {
+      if (
+        reported.has(form) ||
+        !canTrackEvent(ANALYTICS_EVENTS.waitlistFormViewed)
+      ) {
+        return;
+      }
+      reported.add(form);
+      trackClientEvent(ANALYTICS_EVENTS.waitlistFormViewed, {
+        form: sourceOf(form),
+      });
+    };
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting || entry.intersectionRatio < 0.5) {
+            continue;
+          }
+          const form = entry.target as HTMLFormElement;
+          observer.unobserve(form);
+          seen.add(form);
+          report(form);
+        }
+      },
+      { threshold: 0.5 },
+    );
+    for (const form of forms) {
+      observer.observe(form);
+    }
+
+    const reportSeen = () => {
+      for (const form of seen) {
+        report(form);
+      }
+    };
+    document.addEventListener(ANALYTICS_CONSENT_CHANGED_EVENT, reportSeen);
+    document.addEventListener('zarazConsentReconciled', reportSeen);
   }
 </script>
 

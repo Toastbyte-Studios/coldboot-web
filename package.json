@@ -1,6 +1,6 @@
 {
   "name": "coldboot-web",
-  "version": "0.14.9",
+  "version": "0.15.0",
   "private": true,
   "type": "module",
   "engines": {
@@ -20,6 +20,7 @@
     "cf:types": "wrangler types",
     "db:migrate:local": "wrangler d1 migrations apply coldboot-waitlist --local",
     "db:migrate:remote": "wrangler d1 migrations apply coldboot-waitlist --remote",
+    "report:waitlist": "node scripts/waitlist-report.mjs",
     "cleanup": "npm run format && npm run lint && npm run typecheck && npm run test && npm run build",
     "astro": "astro"
   },

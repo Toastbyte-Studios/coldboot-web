@@ -97,6 +97,22 @@ function mayTrack(eventName: AnalyticsEventName): boolean {
   return readConsentCookie() === 'granted';
 }
 
+/**
+ * Whether `eventName` would be sent right now. For code that has to decide
+ * when to fire rather than whether: an event about something already on
+ * screen (a form in view) can wait for the visitor's answer to the banner
+ * instead of being dropped.
+ */
+export function canTrackEvent(eventName: AnalyticsEventName): boolean {
+  return typeof window !== 'undefined' && mayTrack(eventName);
+}
+
+/**
+ * Fired on `document` after the banner's answer is recorded. Not in
+ * alley-admin's copy of this file: it exists for waitlist_form_viewed.
+ */
+export const ANALYTICS_CONSENT_CHANGED_EVENT = 'analyticsConsentChanged';
+
 export function getAnalyticsConsentRequirement(): boolean {
   return isAnalyticsConsentRequired();
 }
@@ -128,6 +144,8 @@ export function setAnalyticsConsent(granted: boolean) {
   } else {
     pendingConsent = granted;
   }
+
+  document.dispatchEvent(new Event(ANALYTICS_CONSENT_CHANGED_EVENT));
 }
 
 function readZarazConsent(): boolean | null {

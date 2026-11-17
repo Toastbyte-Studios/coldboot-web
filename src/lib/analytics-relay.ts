@@ -94,6 +94,7 @@ export function sanitizeParams(
 
   const input = raw as Record<string, unknown>;
   if (
+    eventName === ANALYTICS_EVENTS.waitlistFormViewed ||
     eventName === ANALYTICS_EVENTS.waitlistSignupStarted ||
     eventName === ANALYTICS_EVENTS.waitlistSignupSucceeded
   ) {
