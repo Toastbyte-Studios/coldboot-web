@@ -83,20 +83,21 @@ dashboard for the `coldboot.app` zone:
 
 ## Scripts
 
-| Command                     | What it does                                        |
-| --------------------------- | --------------------------------------------------- |
-| `npm run dev`               | Start the Astro dev server                          |
-| `npm run build`             | Build the site into `dist/`                         |
-| `npm run preview`           | Build, then serve locally in the Workers runtime    |
-| `npm run typecheck`         | Generate Worker types and run `astro check`         |
-| `npm run lint`              | Run ESLint                                          |
-| `npm run format`            | Format with Prettier                                |
-| `npm run format:check`      | Check formatting without writing                    |
-| `npm test`                  | Run unit tests (Node's built-in test runner)        |
-| `npm run db:migrate:local`  | Apply D1 migrations to the local database           |
-| `npm run db:migrate:remote` | Apply D1 migrations to production                   |
-| `npm run cleanup`           | Format, lint, typecheck, test and build in one pass |
-| `npm run deploy`            | Build and deploy to Cloudflare with Wrangler        |
+| Command                     | What it does                                         |
+| --------------------------- | ---------------------------------------------------- |
+| `npm run dev`               | Start the Astro dev server                           |
+| `npm run build`             | Build the site into `dist/`                          |
+| `npm run preview`           | Build, then serve locally in the Workers runtime     |
+| `npm run typecheck`         | Generate Worker types and run `astro check`          |
+| `npm run lint`              | Run ESLint                                           |
+| `npm run format`            | Format with Prettier                                 |
+| `npm run format:check`      | Check formatting without writing                     |
+| `npm test`                  | Run unit tests (Node's built-in test runner)         |
+| `npm run db:migrate:local`  | Apply D1 migrations to the local database            |
+| `npm run db:migrate:remote` | Apply D1 migrations to production                    |
+| `npm run report:waitlist`   | Signup counts by form from D1 (`-- --local` to test) |
+| `npm run cleanup`           | Format, lint, typecheck, test and build in one pass  |
+| `npm run deploy`            | Build and deploy to Cloudflare with Wrangler         |
 
 ## GitHub Actions
 

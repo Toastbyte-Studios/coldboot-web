@@ -16,6 +16,16 @@
  */
 export const ANALYTICS_EVENTS = {
   /**
+   * A waitlist form came into view, at most once per form per page load.
+   * The `form` param is which form (`WaitlistSource`).
+   *
+   * This is the denominator the other waitlist events were missing: without
+   * it there is no way to say what share of the people who saw a given form
+   * (the hero, a guide's, the closing one) went on to submit it.
+   */
+  waitlistFormViewed: 'waitlist_form_viewed',
+
+  /**
    * A waitlist form was submitted and passed the browser's own validation.
    * The `form` param is which form (`WaitlistSource`).
    */
